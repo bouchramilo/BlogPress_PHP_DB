@@ -1,0 +1,17 @@
+Gradient : 
+--linearPrimarySecondary: linear-gradient(#d025a0, #830c61);
+--linearPrimaryAccent: linear-gradient(#d025a0, #b0037f);
+--linearSecondaryAccent: linear-gradient(#830c61, #b0037f);
+--radialPrimarySecondary: radial-gradient(#d025a0, #830c61);
+--radialPrimaryAccent: radial-gradient(#d025a0, #b0037f);
+--radialSecondaryAccent: radial-gradient(#830c61, #b0037f);
+
+tailwind : 
+
+colors: {
+ 'text': '#f7e9f2',
+ 'background': '#080306',
+ 'primary': '#d025a0',
+ 'secondary': '#830c61',
+ 'accent': '#b0037f',
+},
