@@ -1,3 +1,95 @@
+<?php
+
+include('connect_DB.php');
+
+$erreur_tab = [
+    'name' => '',
+    'prenom' => '',
+    'email' => '',
+    'password1' => '',
+    'password2' => ''
+];
+
+$name = $prenom = $email = $password1 = $password2 = '' ;
+
+if (isset($_POST['signup'])) {
+    // Validation du nom
+    if (empty($_POST['nom_auteur'])) {
+        $erreur_tab['name'] = 'Le nom est vide!!!';
+    } else {
+        $name = $_POST['nom_auteur'];
+        if (!preg_match('/^[A-Za-z]{2,}([ -][A-Za-z]{2,})*$/', $name)) {
+            $erreur_tab['name'] = 'Le nom doit contenir au moins 2 lettres et ne doit pas contenir de chiffres ou de caractères spéciaux.';
+        }
+    }
+
+    // Validation du prénom
+    if (empty($_POST['prenom_auteur'])) {
+        $erreur_tab['prenom'] = 'Le prénom est vide!!!';
+    } else {
+        $prenom = $_POST['prenom_auteur'];
+        if (!preg_match('/^[A-Za-z]{2,}([ -][A-Za-z]{2,})*$/', $prenom)) {
+            $erreur_tab['prenom'] = 'Le prénom doit contenir au moins 2 lettres et ne doit pas contenir de chiffres ou de caractères spéciaux.';
+        }
+    }
+
+    // Validation de l'email
+    if (empty($_POST['email_auteur'])) {
+        $erreur_tab['email'] = 'L\'email est vide!!!';
+    } else {
+        $email = $_POST['email_auteur'];
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $erreur_tab['email'] = 'L\'email n\'est pas valide!!!';
+        }
+    }
+
+    // Validation des mots de passe
+    $passwordRegex = "/^[a-zA-Z0-9$*-+*.&#:?!;,]{8,}$/";
+
+    $password1 = $_POST['password1'] ;
+    $password2 = $_POST['password2'] ;
+
+    if (empty($password1)) {
+        $erreur_tab['password1'] = 'Le mot de passe est vide!!!';
+    } elseif (!preg_match($passwordRegex, $password1)) {
+        $erreur_tab['password1'] = 'Le mot de passe doit contenir au moins 8 caractères, avec des lettres et des chiffres.';
+    }
+
+    if (empty($password2)) {
+        $erreur_tab['password2'] = 'Le mot de passe de confirmation est vide!!!';
+    } elseif ($password1 !== $password2) {
+        $erreur_tab['password2'] = 'Les mots de passe ne correspondent pas.';
+    }
+
+    if(array_filter($erreur_tab)){
+        // echo "Il y a des erreurs dans votre formulaire :";
+    }
+    else{
+        $name = mysqli_real_escape_string($conn, $_POST['nom_auteur']);
+        $prenom = mysqli_real_escape_string($conn, $_POST['prenom_auteur']);
+        $email = mysqli_real_escape_string($conn, $_POST['email_auteur']);
+        $password1 = mysqli_real_escape_string($conn, $_POST['password1']);
+        // $password2 = mysqli_real_escape_string($conn, $_POST['password2']);
+
+        $sql = "INSERT INTO Auteurs (Nom_auteur, Prénom_auteur, Email_auteur, Password) VALUES('$name', '$prenom', '$email', '$password1')";
+
+        if(mysqli_query($conn, $sql)){
+            // success
+            header('Location: connexion.php');
+        }
+        else{
+            // error
+            echo "Erreur lors de l'insertion des données : " . mysqli_error($conn);
+        }
+
+    }
+
+} // end of if (isset($_POST['submit']))
+?>
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,53 +101,9 @@
 </head>
 
 <body class="text-white flex flex-col items-center gap-2 bg-black ">
-    <header class="bg-[#1d1d1d] w-full h-16 flex justify-center items-center px-12">
-        <nav class="flex flex-row justify-between w-full">
-            <!-- Logo -->
-            <div class="w-1/12">
-                <a href="index.html">
-                    <span class="text-2xl text-[#d025a0] hover:text-[#830c61] font-bold">BlogPress</span>
-                </a>
-            </div>
-            <!-- Menu Links -->
-            <div id="menu"
-                class="w-1/2 flex gap-4 flex-shrink lg:flex lg:items-center lg:justify-center hidden flex-col lg:flex-row absolute left-1/2 border-none rounded-2xl lg:relative top-16 lg:top-0 lg:left-auto bg-[#1e1e1e] lg:bg-transparent lg:w-6/12 z-10 lg:z-auto p-4 lg:p-0">
-                <a href="" class="w-full lg:w-1/5   lg:mb-0">
-                    <button
-                        class="border-b-2 border-b-[#1d1d1d] rounded-sm w-full lg:h-full h-8 font-sans text-xl hover:border-b-4 hover:border-[#d025a0]">
-                        Home
-                    </button>
-                </a>
-                <a href="" class="w-full lg:w-1/5   lg:mb-0">
-                    <button
-                        class="border-b-2 border-b-[#1d1d1d] rounded-sm w-full lg:h-full h-8 font-sans text-xl hover:border-b-4 hover:border-[#d025a0]">
-                        test
-                    </button>
-                </a>
 
-                <a href="connexion.php" class="w-full lg:w-1/5   lg:mb-0">
-                    <button
-                        class="bg-[#d025a0] border-2 rounded-sm w-full lg:h-full h-8 font-sans text-xl hover:bg-[#830c61] hover:text-white">
-                        Connexion
-                    </button>
-                </a>
-                <a href="inscription.php" class="w-full lg:w-1/5   lg:mb-0">
-                    <button
-                        class="bg-[#d025a0] border-2 rounded-sm w-full lg:h-full h-8 font-sans text-xl hover:bg-[#830c61] hover:text-white">
-                        Inscription
-                    </button>
-                </a>
-            </div>
-            <!-- Hamburger Menu -->
-            <div class="lg:hidden justify-end flex w-1/12">
-                <button onclick="Menu()" class="flex items-center px-2 py-0 my-4 border h-10 rounded bg-[#d025a0]">
-                    <svg class="fill-current h-6 w-6" viewBox="0 0 20 20">
-                        <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
-                    </svg>
-                </button>
-            </div>
-        </nav>
-    </header>
+    <!-- header -->
+    <?php include('header.php'); ?>
 
     <main class="h-max w-full flex flex-col justify-center items-center gap-2">
         <section class="h-screen bg-[url('images/bg3.jpg')] bg-cover w-full flex justify-center items-center ">
@@ -64,28 +112,34 @@
                 <h1 class="text-2xl font-bold">Sign up</h1>
                 <form action="" method="POST" class="flex flex-col gap-2 w-4/5 h-4/5">
                     <label for="name">Nom : </label>
-                    <input type="text" name="nom_auteur" id="nom_auteur" placeholder="Votre nom."
+                    <input type="text" name="nom_auteur" id="nom_auteur" placeholder="Votre nom." value="<?php echo htmlspecialchars($name); ?>"
                         class="h-12 text-white bg-black px-2 border-0 hover:border-2 hover:border-[#830c62]">
+                        <div class="text-red-500 text-xs"><?php print_r( $erreur_tab['name']); ?></div>
+                    
 
                     <label for="prenom">Prénom : </label>
-                    <input type="text" name="prenom_auteur" id="prenom_auteur" placeholder="Votre prénom."
+                    <input type="text" name="prenom_auteur" id="prenom_auteur" placeholder="Votre prénom." value="<?php echo htmlspecialchars($prenom); ?>"
                         class="h-12 text-white bg-black px-2 border-0 hover:border-2 hover:border-[#830c62]">
+                    <div class="text-red-500 text-xs"><?php echo  $erreur_tab['prenom']; ?></div>
 
                     <label for="email">Adresse e-mail : </label>
-                    <input type="email" name="email_auteur" id="email_auteur" placeholder="Votre adresse e-mail."
+                    <input type="email" name="email_auteur" id="email_auteur" placeholder="Votre adresse e-mail." value="<?php echo htmlspecialchars($email); ?>"
                         class="h-12 text-white bg-black px-2 border-0 hover:border-2 hover:border-[#830c62]">
+                    <div class="text-red-500 text-xs"><?php echo  $erreur_tab['email']; ?></div>
 
                     <label for="password1">Mot de passe : </label>
-                    <input type="password" name="password1" id="password1" placeholder="Votre mot de passe"
+                    <input type="password" name="password1" id="password1" placeholder="Votre mot de passe" value="<?php echo htmlspecialchars($password1); ?>"
                         class="h-12 text-white bg-black px-2 border-0 hover:border-2 hover:border-[#830c62]">
+                    <div class="text-red-500 text-xs"><?php echo  $erreur_tab['password1']; ?></div>
 
                     <label for="password2">Confirmer mot de passe : </label>
                     <input type="password" name="password2" id="password2"
-                        placeholder="Votre mot de passe (Confirmation)."
+                        placeholder="Votre mot de passe (Confirmation)." value="<?php echo htmlspecialchars($password2); ?>"
                         class="h-12 text-white bg-black px-2 border-0 hover:border-2 hover:border-[#830c62]">
+                    <div class="text-red-500 text-xs"><?php echo  $erreur_tab['password2']; ?></div>
 
                     <div class="flex justify-center h-12 pt-4">
-                        <button
+                        <button name="signup"
                             class="bg-[#d025a0] border-2 rounded-sm w-44 h-12 font-sans text-xl hover:bg-[#830c61] hover:text-white">
                             sign up
                         </button>
@@ -96,11 +150,9 @@
         </section>
     </main>
 
-    <footer class="bg-[#1d1d1d] h-32 w-full flex items-center justify-center">
-        <p class="max-sm:text-[12px] max-sm:px-6 text-center">Copyright © 2024 Blog Press | Powered by <span
-                class="text-[#d025a0]">BlogPress</span> Theme</p>
-    </footer>
 
+    <!-- footer -->
+    <?php include('footer.php'); ?>
 
 </body>
 <script src="js/menu_theme.js"></script>

@@ -14,7 +14,13 @@ SELECT * from Articles ;
 SELECT * from Commentaires ;
 SELECT * from likes_vues ;
 
-
+INSERT INTO Auteurs (Nom_auteur, Prénom_auteur, Email_auteur, Password)
+VALUES
+('Dupont', 'Jean', 'jean.dupont@example.com', 'password1'),
+('Martin', 'Sophie', 'sophie.martin@example.com', 'password2'),
+('Lambert', 'Paul', 'paul.lambert@example.com', 'password3'),
+('Durand', 'Alice', 'alice.durand@example.com', 'password4'),
+('Lemoine', 'Claire', 'claire.lemoine@example.com', 'password5');
 
 
 --  création des TABLEAUX : ================================================================================================================================================

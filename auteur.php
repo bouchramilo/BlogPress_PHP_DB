@@ -1,3 +1,94 @@
+<?php
+
+include('connect_DB.php');
+
+$erreur_tab_Add_art = [
+    'titre' => '',
+    'contenu' => '',
+    'categorie' => ''
+];
+
+$titre = $categorie = $contenu = $id_auteur = '';
+
+if (isset($_POST['add_article'])) {
+    // Validation du titre
+    if (empty($_POST['titreAdd'])) {
+        $erreur_tab_Add_art['titre'] = 'Le titre est vide!!!';
+    } else {
+        $titre = $_POST['titreAdd'];
+        if (!preg_match('/^[A-Za-zÀ-ÿ0-9\s-]{2,}$/u', $titre)) {
+            $erreur_tab_Add_art['titre'] = 'le titre est invalide !!!!';
+        }
+    }
+
+    // Validation du catégorie
+    if (empty($_POST['categorieAdd'])) {
+        $erreur_tab_Add_art['categorie'] = 'Le categirie est vide!!!';
+    } else {
+        $categorie = $_POST['categorieAdd'];
+        if (!preg_match('/^[A-Za-zÀ-ÿ\s-]{2,}$/u', $categorie)) {
+            $erreur_tab_Add_art['categorie'] = 'Le catégorie est invalide !!!!';
+        }
+    }
+
+    // Validation du contenue
+    if (empty($_POST['contenuAdd'])) {
+        $erreur_tab_Add_art['contenu'] = 'Le contenu est vide!!!';
+    } else {
+        $contenu = $_POST['contenuAdd'];
+        if (!preg_match('/^[\w\s.,!?\'"À-ÿ-]{2,}$/u', $contenu)) {
+            $erreur_tab_Add_art['contenu'] = 'le contenu est invalide !!!!';
+        }
+    }
+
+    if (isset($_GET['id_auteur'])) {
+        // Extraire l'id_auteur à partir de URL 
+        $id_auteur = $_GET['id_auteur'];
+        
+        $id_auteur = intval($id_auteur);
+    
+        echo "L'id_auteur extrait est : " . $id_auteur;
+    } else {
+        echo "Aucun id_auteur n'a été fourni dans l'URL.";
+    }
+
+    // set data in BD
+    if (array_filter($erreur_tab_Add_art)) {
+        echo "Il y a des erreurs dans votre formulaire :";
+        foreach ($erreur_tab_Add_art as $champ => $messageErreur) {
+            if (!empty($messageErreur)) {
+                echo "<p class='text-red-500'>$messageErreur</p>";
+            }
+        }
+    } else {
+        $titre = mysqli_real_escape_string($conn, $_POST['titreAdd']);
+        $contenu = mysqli_real_escape_string($conn, $_POST['contenuAdd']);
+        $categorie = mysqli_real_escape_string($conn, $_POST['categorieAdd']);
+
+        // $id_auteur = mysqli_real_escape_string($conn, $_GET['id_auteur']);
+
+        $sql = "INSERT INTO Articles (Titre, Contenu_article, Categorie, date_creation, ID_auteur) VALUES('$titre', '$contenu', '$categorie', CURDATE(), '$id_auteur')";
+
+        if (mysqli_query($conn, $sql)) {
+            echo "Article ajouté avec succès !";
+            header("Location: auteur.php?id_auteur=$id_auteur");
+        } else {
+            echo "Erreur : " . mysqli_error($conn);
+        }
+    }
+} // end of if (isset($_POST['add_article']))
+?>
+
+
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,75 +100,35 @@
 </head>
 
 <body class="text-white flex flex-col min-h-screen gap-2 bg-black">
-    <header class="bg-[#1d1d1d] w-full h-16 flex justify-center items-center px-12">
-        <nav class="flex flex-row justify-between w-full">
-            <!-- Logo -->
-            <div class="w-1/12">
-                <a href="index.html">
-                    <span class="text-2xl text-[#d025a0] hover:text-[#830c61] font-bold">BlogPress</span>
-                </a>
-            </div>
-            <!-- Menu Links -->
-            <div id="menu"
-                class="w-1/2 flex gap-4 flex-shrink lg:flex lg:items-center lg:justify-center hidden flex-col lg:flex-row absolute left-1/2 border-none rounded-2xl lg:relative top-16 lg:top-0 lg:left-auto bg-[#1e1e1e] lg:bg-transparent lg:w-6/12 z-10 lg:z-auto p-4 lg:p-0">
-                <a href="" class="w-full lg:w-1/5   lg:mb-0">
-                    <button
-                        class="border-b-2 border-b-[#1d1d1d] rounded-sm w-full lg:h-full h-8 font-sans text-xl hover:border-b-4 hover:border-[#d025a0]">
-                        Home
-                    </button>
-                </a>
-                <a href="" class="w-full lg:w-1/5   lg:mb-0">
-                    <button
-                        class="border-b-2 border-b-[#1d1d1d] rounded-sm w-full lg:h-full h-8 font-sans text-xl hover:border-b-4 hover:border-[#d025a0]">
-                        Test
-                    </button>
-                </a>
 
-                <a href="connexion.php" class="w-full lg:w-1/5   lg:mb-0">
-                    <button
-                        class="bg-[#d025a0] border-2 rounded-sm w-full lg:h-full h-8 font-sans text-xl hover:bg-[#830c61] hover:text-white">
-                        Connexion
-                    </button>
-                </a>
-                <a href="inscription.php" class="w-full lg:w-1/5   lg:mb-0">
-                    <button
-                        class="bg-[#d025a0] border-2 rounded-sm w-full lg:h-full h-8 font-sans text-xl hover:bg-[#830c61] hover:text-white">
-                        Inscription
-                    </button>
-                </a>
-            </div>
-            <!-- Hamburger Menu -->
-            <div class="lg:hidden justify-end flex w-1/12">
-                <button onclick="Menu()" class="flex items-center px-2 py-0 my-4 border h-10 rounded bg-[#d025a0]">
-                    <svg class="fill-current h-6 w-6" viewBox="0 0 20 20">
-                        <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
-                    </svg>
-                </button>
-            </div>
-        </nav>
-    </header>
+    <!-- header -->
+
+    <?php include('header.php'); ?>
 
     <!-- Formulaire ajout caché -->
     <div id="formContainerAdd" class="fixed inset-0 bg-white bg-opacity-50 flex justify-center items-center hidden">
         <div
             class="bg-[#1d1d1d] opacity-85 text-white p-6 flex flex-col gap-6 rounded-sm shadow-lg w-[70%] max-sm:w-full">
             <h2 class="text-2xl font-bold text-center">Ajouter article</h2>
-            <form>
+            <form method="POST" action="">
                 <label for="titreAdd" class="block mb-2">Titre d'article :</label>
-                <input type="text" id="titreAdd" class="w-full p-2 mb-4 border-0 rounded-sm bg-black"
+                <input type="text" id="titreAdd" class="w-full p-2 mb-4 border-0 rounded-sm bg-black" name="titreAdd" required value="<?php echo htmlspecialchars($titre); ?>"
                     placeholder="Titre d'article">
+                <div class="text-red-500 text-xs"><?php echo  $erreur_tab_Add_art['titre']; ?></div>
 
                 <label for="categorieAdd" class="block mb-2">Categorie d'article :</label>
-                <input type="text" id="categorieAdd" class="w-full p-2 mb-4 border-0 rounded-sm bg-black"
+                <input type="text" id="categorieAdd" class="w-full p-2 mb-4 border-0 rounded-sm bg-black" name="categorieAdd" value="<?php echo htmlspecialchars($categorie); ?>"
                     placeholder="Catégorie d'article">
+                <div class="text-red-500 text-xs"><?php echo  $erreur_tab_Add_art['categorie']; ?></div>
 
                 <label for="ContenuM" class="block mb-2">Contenu d'article :</label>
-                <textarea type="text" id="ContenuAdd"
-                    class="w-full p-2 mb-4 border-0 rounded-sm bg-black resize-none h-40"
-                    placeholder="Contenu d'article"></textarea>
+                <input type="text" id="ContenuAdd"
+                    class="w-full p-2 mb-4 border-0 rounded-sm bg-black resize-none h-40" name="contenuAdd" value="<?php echo htmlspecialchars($contenu); ?>"
+                    placeholder="Contenu d'article">
+                <div class="text-red-500 text-xs"><?php echo  $erreur_tab_Add_art['contenu']; ?></div>
 
                 <div class="flex justify-center h-12">
-                    <button
+                    <button name="add_article"
                         class="bg-[#d025a0] border-2 rounded-sm w-44 h-10 font-sans hover:bg-[#830c61] hover:text-white">
                         Add Article
                     </button>
@@ -323,10 +374,9 @@
         </section>
     </main>
 
-    <footer class="bg-[#1d1d1d] h-32 w-full flex items-center justify-center">
-        <p class="max-sm:text-[12px] max-sm:px-6 text-center">Copyright © 2024 Blog Press | Powered by <span
-                class="text-[#d025a0]">BlogPress</span> Theme</p>
-    </footer>
+
+    <!-- footer -->
+    <?php include('footer.php'); ?>
 
 </body>
 
