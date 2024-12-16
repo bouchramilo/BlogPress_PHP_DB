@@ -23,6 +23,31 @@ VALUES
 ('Lemoine', 'Claire', 'claire.lemoine@example.com', 'password5');
 
 
+-- requete pour afficher les information des articles d'un auteur :
+SELECT 
+    Articles.ID_article, 
+    Articles.Titre,
+    Articles.Contenu_article,
+    Articles.Categorie,
+    DATE_FORMAT(Articles.date_creation, '%d-%m-%Y') AS date_creation,
+    Auteurs.Nom_auteur,
+    Auteurs.Prénom_auteur,
+    (SELECT SUM(nbr_L_V) FROM likes_vues WHERE likes_vues.ID_article = Articles.ID_article AND likes_vues.type = 'like') AS nbr_likes,
+    (SELECT SUM(nbr_L_V) FROM likes_vues WHERE likes_vues.ID_article = Articles.ID_article AND likes_vues.type = 'vue') AS nbr_vues,
+    (SELECT COUNT(*) FROM Commentaires WHERE Commentaires.id_article = Articles.ID_article) AS nbr_commentaires
+FROM 
+    Articles
+JOIN 
+    Auteurs ON Articles.ID_auteur = Auteurs.ID_auteur
+WHERE 
+    Auteurs.ID_auteur = 6 ;
+
+
+UPDATE Articles
+SET Titre = "test update", Contenu_article = "contenue modifier de l'article test tes testest test ", Categorie = "categoryUpdate"
+WHERE ID_article = 9 ;
+
+
 --  création des TABLEAUX : ================================================================================================================================================
 
 CREATE TABLE Auteurs (
@@ -55,6 +80,11 @@ CREATE TABLE Commentaires (
     FOREIGN KEY (id_article) REFERENCES Articles(ID_article)
 );
 
+-- insert into commentaires : COMMENT
+INSERT INTO commentaires(Nom_visiteur, email_visiteur, contenu_vomment, id_article) VALUES ('visiteur test', 'visiteur@gmail.com', 'commentaire test', 9);
+
+
+SELECT * FROM commentaires WHERE id_article = 9;
 
 CREATE TABLE likes_vues (
     ID_L_V INT AUTO_INCREMENT PRIMARY KEY,
@@ -64,6 +94,12 @@ CREATE TABLE likes_vues (
     FOREIGN KEY (ID_article) REFERENCES Articles(ID_article)
 );
 
+
+UPDATE likes_vues SET nbr_L_V = nbr_L_V + 1 WHERE ID_article = 9 and type = "like";
+
+insert into likes_vues (nbr_L_V, type, `ID_article`) VALUES(2, 'like', 9);
+
+select count(*) from likes_vues WHERE `ID_article` = 2 ;
 
 -- pour supprimer les tableaux : 
 -- 1-

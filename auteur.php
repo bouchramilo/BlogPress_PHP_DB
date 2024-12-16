@@ -1,7 +1,10 @@
 <?php
-
 include('connect_DB.php');
+?>
 
+
+<!-- // pour l'ajout des articles : ----------------------------------------------------------------------------------------------------------------------- -->
+<?php
 $erreur_tab_Add_art = [
     'titre' => '',
     'contenu' => '',
@@ -44,9 +47,9 @@ if (isset($_POST['add_article'])) {
     if (isset($_GET['id_auteur'])) {
         // Extraire l'id_auteur à partir de URL 
         $id_auteur = $_GET['id_auteur'];
-        
+
         $id_auteur = intval($id_auteur);
-    
+
         echo "L'id_auteur extrait est : " . $id_auteur;
     } else {
         echo "Aucun id_auteur n'a été fourni dans l'URL.";
@@ -65,7 +68,7 @@ if (isset($_POST['add_article'])) {
         $contenu = mysqli_real_escape_string($conn, $_POST['contenuAdd']);
         $categorie = mysqli_real_escape_string($conn, $_POST['categorieAdd']);
 
-        // $id_auteur = mysqli_real_escape_string($conn, $_GET['id_auteur']);
+        $id_auteur = mysqli_real_escape_string($conn, $_GET['id_auteur']);
 
         $sql = "INSERT INTO Articles (Titre, Contenu_article, Categorie, date_creation, ID_auteur) VALUES('$titre', '$contenu', '$categorie', CURDATE(), '$id_auteur')";
 
@@ -79,8 +82,123 @@ if (isset($_POST['add_article'])) {
 } // end of if (isset($_POST['add_article']))
 ?>
 
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- // pour l'affichage des articles d'auteur : ----------------------------------------------------------------------------------------------------------------------- -->
+
+<?php
+if (isset($_GET['id_auteur'])) {
+    $id_auteur = $_GET['id_auteur'];
+} elseif (isset($_POST['id_auteur'])) {
+    $id_auteur = $_POST['id_auteur'];
+} else {
+    die("Erreur : ID auteur non défini.");
+}
+
+$sql_afficher_arts_aut = "SELECT 
+    Articles.ID_article, 
+    Articles.Titre as Titre,
+    Articles.Contenu_article,
+    Articles.Categorie,
+    DATE_FORMAT(Articles.date_creation, '%d-%m-%Y') AS date_creation,
+    Auteurs.Nom_auteur,
+    Auteurs.Prénom_auteur,
+    (SELECT COUNT(*) FROM likes_vues WHERE likes_vues.ID_article = Articles.ID_article AND likes_vues.type = 'like') AS nbr_likes,
+    (SELECT COUNT(*) FROM likes_vues WHERE likes_vues.ID_article = Articles.ID_article AND likes_vues.type = 'vue') AS nbr_vues,
+    (SELECT COUNT(*) FROM Commentaires WHERE Commentaires.id_article = Articles.ID_article) AS nbr_commentaires
+FROM 
+    Articles
+JOIN 
+    Auteurs ON Articles.ID_auteur = Auteurs.ID_auteur
+WHERE 
+    Auteurs.ID_auteur = '$id_auteur' ;";
+
+$resultAfficher = $conn->query($sql_afficher_arts_aut);
+
+$articles = mysqli_fetch_all($resultAfficher, MYSQLI_ASSOC);
+
+?>
 
 
+<?php
+
+$erreur_tab_Modif_art = [
+    'titre' => '',
+    'contenu' => '',
+    'categorie' => ''
+];
+
+if (isset($_POST['modifier_article'])) {
+    // Validation du titre
+    if (empty($_POST['titreM'])) {
+        $erreur_tab_Modif_art['titre'] = 'Le titre est vide!!!';
+    } else {
+        $titreM = $_POST['titreM'];
+        if (!preg_match('/^[A-Za-zÀ-ÿ0-9\s-]{2,}$/u', $titre)) {
+            $erreur_tab_Modif_art['titre'] = 'le titre est invalide !!!!';
+        }
+    }
+
+    // Validation du catégorie
+    if (empty($_POST['categorieM'])) {
+        $erreur_tab_Modif_art['categorie'] = 'Le categirie est vide!!!';
+    } else {
+        $categorie = $_POST['categorieM'];
+        if (!preg_match('/^[A-Za-zÀ-ÿ\s-]{2,}$/u', $categorie)) {
+            $erreur_tab_Modif_art['categorie'] = 'Le catégorie est invalide !!!!';
+        }
+    }
+
+    // Validation du contenue
+    if (empty($_POST['contenuM'])) {
+        $erreur_tab_Modif_art['contenu'] = 'Le contenu est vide!!!';
+    } else {
+        $contenu = $_POST['contenuM'];
+        if (!preg_match('/^[\w\s.,!?\'"À-ÿ-]{2,}$/u', $contenu)) {
+            $erreur_tab_Modif_art['contenu'] = 'le contenu est invalide !!!!';
+        }
+    }
+
+    if (isset($_GET['id_auteur'])) {
+        // Extraire l'id_auteur à partir de URL 
+        $id_auteur = $_GET['id_auteur'];
+
+        $id_auteur = intval($id_auteur);
+
+        echo "L'id_auteur extrait est : " . $id_auteur;
+    } else {
+        echo "Aucun id_auteur n'a été fourni dans l'URL.";
+    }
+
+    // set data in BD
+    if (array_filter($erreur_tab_Modif_art)) {
+        echo "Il y a des erreurs dans votre formulaire :";
+        foreach ($erreur_tab_Modif_art as $champ => $messageErreur) {
+            if (!empty($messageErreur)) {
+                echo "<p class='text-red-500'>$messageErreur</p>";
+            }
+        }
+    } else {
+        $titreM = mysqli_real_escape_string($conn, $_POST['titreM']);
+        $contenuM = mysqli_real_escape_string($conn, $_POST['contenuM']);
+        $categorieM = mysqli_real_escape_string($conn, $_POST['categorieM']);
+
+        $id_auteur = mysqli_real_escape_string($conn, $_GET['id_auteur']);
+
+        $sql = "UPDATE Articles SET Titre = '$titreM', Contenu_article = '$contenuM', Categorie = '$categorieM' WHERE ID_article = 9 ";
+
+        if (mysqli_query($conn, $sql)) {
+            echo "Article modifié avec succès !";
+            header("Location: auteur.php?id_auteur=$id_auteur");
+        } else {
+            echo "Erreur : " . mysqli_error($conn);
+        }
+    }
+} // end of if (isset($_POST['add_article']))
+
+
+
+
+?>
 
 
 
@@ -145,20 +263,20 @@ if (isset($_POST['add_article'])) {
             <h2 class="text-2xl font-bold text-center">Modifier l'article</h2>
             <form>
                 <label for="titreM" class="block mb-2">Titre d'article :</label>
-                <input type="text" id="titreM" class="w-full p-2 mb-4 border-0 rounded-sm bg-black"
+                <input type="text" id="titreM" class="w-full p-2 mb-4 border-0 rounded-sm bg-black" name="titreM"
                     placeholder="Titre Modifier">
 
                 <label for="categorieM" class="block mb-2">Categorie d'article :</label>
-                <input type="categorieM" id="categorieM" class="w-full p-2 mb-4 border-0 rounded-sm bg-black"
+                <input type="categorieM" id="categorieM" class="w-full p-2 mb-4 border-0 rounded-sm bg-black" name="categorieM"
                     placeholder="Catégorie Modifier">
 
                 <label for="ContenuM" class="block mb-2">Contenu d'article :</label>
-                <textarea type="ContenuM" id="ContenuM"
-                    class="w-full p-2 mb-4 border-0 rounded-sm bg-black resize-none h-40"
-                    placeholder="Contenu Modifier"></textarea>
+                <input type="ContenuM" id="ContenuM"
+                    class="w-full p-2 mb-4 border-0 rounded-sm bg-black resize-none h-40" name="ContenuM"
+                    placeholder="Contenu Modifier">
 
                 <div class="flex justify-center h-12">
-                    <button
+                    <button name="modifier_article"
                         class="bg-[#d025a0] border-2 rounded-sm w-44 h-10 font-sans hover:bg-[#830c61] hover:text-white">
                         Save
                     </button>
@@ -181,9 +299,62 @@ if (isset($_POST['add_article'])) {
                     &#10011; add article
                 </button>
             </div>
-            <div class="grid lg:grid-cols-2 max:lg:grid-cols-2 gap-4 ">
+            <div class="w-full grid lg:grid-cols-2 max:lg:grid-cols-2 gap-4 ">
+
+                <?php if (!empty($articles) && is_array($articles)): ?>
+                    <?php foreach ($articles as $article): ?>
+                        <!-- article 1 -->
+                        <div
+                            class="w-full flex flex-col gap-2 px-2 py-2 bg-[#111111] shadow-md shadow-[#830c61] border-0 rounded-sm hover:border-[1px] hover:border-[#830c61] hover:shadow-lg hover:shadow-[#830c61] ">
+                            <p class="hidden"><?php echo htmlspecialchars($article['ID_article']); ?></p>
+                            <h1 class="lg:text-2xl max-lg:text-2xl max-sm:text-xl text-[#830c61]"><?php echo htmlspecialchars($article['Titre']); ?></h1>
+                            <p class="max-sm:text-sm text-gray-400">date de création : <?php echo htmlspecialchars($article['date_creation']); ?></p>
+                            <p class="max-sm:text-sm text-gray-400">Catégorie : <?php echo htmlspecialchars($article['Categorie']); ?> </p>
+                            <p class="max-sm:text-sm">
+                                <?php
+                                $contenu = $article['Contenu_article'] ?? '';
+                                $extrait = substr($contenu, 0, 250);
+                                echo htmlspecialchars($extrait) . '...';
+                                ?>
+                            </p>
+                            <div class="flex flex-row justify-between gap-2 max-sm:flex-col">
+
+                                <div class="flex flex-row gap-2">
+                                    <p>&#10084; <?php echo htmlspecialchars($article['nbr_likes']); ?></p>
+                                    <div class="flex ">
+                                        <img src="images/icones/vue.png" alt="comment" class="w-6">
+                                        <p><?php echo htmlspecialchars($article['nbr_vues']); ?></p>
+                                    </div>
+                                    <div class="flex ">
+                                        <img src="images/icones/comment.png" alt="comment" class="w-6">
+                                        <p><?php echo htmlspecialchars($article['nbr_commentaires']); ?></p>
+                                    </div>
+
+                                </div>
+                                <div class="flex flex-row gap-2 max-sm:justify-end">
+                                    <button
+                                        class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white">
+                                        read
+                                    </button>
+                                    <button
+                                        class="updateform max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white"">
+                                    update
+                                </button>
+                                <button
+                                    class=" max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans
+                                        hover:bg-[#830c61] hover:text-white"">
+                                        delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>Aucun article disponible.</p>
+                <?php endif; ?>
+
                 <!-- article 1 -->
-                <div
+                <!-- <div
                     class="flex flex-col gap-2 px-2 py-2 shadow-md shadow-[#830c61] border-0 rounded-sm hover:border-[1px] hover:border-[#830c61] hover:shadow-lg hover:shadow-[#830c61] ">
                     <h1 class="lg:text-2xl max-lg:text-2xl max-sm:text-xl text-[#830c61]">titre de article</h1>
                     <p class="max-sm:text-sm text-gray-400">date de création : 14-12-2024</p>
@@ -227,147 +398,7 @@ if (isset($_POST['add_article'])) {
                         </div>
                     </div>
 
-                </div>
-
-                <!-- article 1 -->
-                <div
-                    class="flex flex-col gap-2 px-2 py-2 shadow-md shadow-[#830c61] border-0 rounded-sm hover:border-[1px] hover:border-[#830c61] hover:shadow-lg hover:shadow-[#830c61] ">
-                    <h1 class="lg:text-2xl max-lg:text-2xl max-sm:text-xl text-[#830c61]">titre de article</h1>
-                    <p class="max-sm:text-sm text-gray-400">date de création : 14-12-2024</p>
-                    <p class="max-sm:text-sm text-gray-400">Catégorie : gere de l'article </p>
-                    <p class="max-sm:text-sm">Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita
-                        quidem culpa error sunt
-                        nemo unde? Fuga alias, nesciunt aliquam aperiam beatae porro distinctio officia asperiores
-                        repellendus harum nulla nam rem!
-                        Alias, sit voluptate! Explicabo libero, totam temporibus unde modi cum doloremque commodi
-                        vero minus natus id nesciunt facilis ex nam corrupti, iste minima amet fugit consectetur
-                        esse rerum, omnis ipsum?
-                    </p>
-                    <div class="flex flex-row justify-between gap-2 max-sm:flex-col">
-
-                        <div class="flex flex-row gap-2">
-                            <p>&#10084; 5</p>
-                            <div class="flex ">
-                                <img src="images/icones/vue.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-                            <div class="flex ">
-                                <img src="images/icones/comment.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-
-                        </div>
-                        <div class="flex flex-row gap-2 max-sm:justify-end">
-                            <button
-                                class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white">
-                                read
-                            </button>
-                            <button
-                                class="updateform max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white"">
-                                update
-                            </button>
-                            <button
-                                class=" max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans
-                                hover:bg-[#830c61] hover:text-white"">
-                                delete
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- article 1 -->
-                <div
-                    class="flex flex-col gap-2 px-2 py-2 shadow-md shadow-[#830c61] border-0 rounded-sm hover:border-[1px] hover:border-[#830c61] hover:shadow-lg hover:shadow-[#830c61] ">
-                    <h1 class="lg:text-2xl max-lg:text-2xl max-sm:text-xl text-[#830c61]">titre de article</h1>
-                    <p class="max-sm:text-sm text-gray-400">date de création : 14-12-2024</p>
-                    <p class="max-sm:text-sm text-gray-400">Catégorie : gere de l'article </p>
-                    <p class="max-sm:text-sm">Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita
-                        quidem culpa error sunt
-                        nemo unde? Fuga alias, nesciunt aliquam aperiam beatae porro distinctio officia asperiores
-                        repellendus harum nulla nam rem!
-                        Alias, sit voluptate! Explicabo libero, totam temporibus unde modi cum doloremque commodi
-                        vero minus natus id nesciunt facilis ex nam corrupti, iste minima amet fugit consectetur
-                        esse rerum, omnis ipsum?
-                    </p>
-                    <div class="flex flex-row justify-between gap-2 max-sm:flex-col">
-
-                        <div class="flex flex-row gap-2">
-                            <p>&#10084; 5</p>
-                            <div class="flex ">
-                                <img src="images/icones/vue.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-                            <div class="flex ">
-                                <img src="images/icones/comment.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-
-                        </div>
-                        <div class="flex flex-row gap-2 max-sm:justify-end">
-                            <button
-                                class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white">
-                                read
-                            </button>
-                            <button
-                                class="updateform max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white">
-                                update
-                            </button>
-                            <button class=" max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans
-                                hover:bg-[#830c61] hover:text-white">
-                                delete
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- article 1 -->
-                <div
-                    class="flex flex-col gap-2 px-2 py-2 shadow-md shadow-[#830c61] border-0 rounded-sm hover:border-[1px] hover:border-[#830c61] hover:shadow-lg hover:shadow-[#830c61] ">
-                    <h1 class="lg:text-2xl max-lg:text-2xl max-sm:text-xl text-[#830c61]">titre de article</h1>
-                    <p class="max-sm:text-sm text-gray-400">date de création : 14-12-2024</p>
-                    <p class="max-sm:text-sm text-gray-400">Catégorie : gere de l'article </p>
-                    <p class="max-sm:text-sm">Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita
-                        quidem culpa error sunt
-                        nemo unde? Fuga alias, nesciunt aliquam aperiam beatae porro distinctio officia asperiores
-                        repellendus harum nulla nam rem!
-                        Alias, sit voluptate! Explicabo libero, totam temporibus unde modi cum doloremque commodi
-                        vero minus natus id nesciunt facilis ex nam corrupti, iste minima amet fugit consectetur
-                        esse rerum, omnis ipsum?
-                    </p>
-                    <div class="flex flex-row justify-between gap-2 max-sm:flex-col">
-
-                        <div class="flex flex-row gap-2">
-                            <p>&#10084; 5</p>
-                            <div class="flex ">
-                                <img src="images/icones/vue.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-                            <div class="flex ">
-                                <img src="images/icones/comment.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-
-                        </div>
-                        <div class="flex flex-row gap-2 max-sm:justify-end">
-                            <button
-                                class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white">
-                                read
-                            </button>
-                            <button
-                                class="updateform max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white"">
-                                update
-                            </button>
-                            <button
-                                class=" max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans
-                                hover:bg-[#830c61] hover:text-white"">
-                                delete
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
+                </div> -->
 
 
             </div>
