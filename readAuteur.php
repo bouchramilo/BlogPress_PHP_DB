@@ -62,7 +62,6 @@ if (isset($_POST['id_article']) || isset($_SESSION['id_article'])) {
     $resultat_cmt = $stmt->get_result();
     $all_commentaires = $resultat_cmt->fetch_all(MYSQLI_ASSOC); // Récupération des commentaires
     $stmt->close();
-
 }
 
 ?>
@@ -83,7 +82,7 @@ if (isset($_POST['modifier_article'])) {
         $erreur_tab_Modif_art['titre'] = 'Le titre est vide!!!';
     } else {
         $titreM = $_POST['titreM'];
-        if (!preg_match('/^[A-Za-zÀ-ÿ0-9\s-]{2,}$/u', $titre)) {
+        if (!preg_match('/^[A-Za-zÀ-ÿ0-9\s-]{2,}$/u', $titreM)) {
             $erreur_tab_Modif_art['titre'] = 'le titre est invalide !!!!';
         }
     }
@@ -108,18 +107,17 @@ if (isset($_POST['modifier_article'])) {
         }
     }
 
-    if (isset($_GET['ID_article'])) {
-        // Extraire l'id_article à partir de URL 
-        $id_article = $_GET['ID_article'];
 
-        $id_article = intval($id_article);
-
-        echo "L'id_article extrait est : " . $id_article;
+    // Récupération de l'ID article
+    if (isset($_POST['id_article'])) {
+        $id_article = $_POST['id_article'];
+        $_SESSION['id_article'] = $id_article;
     } else {
-        echo "Aucun id_article n'a été fourni dans l'URL.";
+        $id_article = $_SESSION['id_article'] ?? null;
     }
 
-    // set data in BD
+
+    // set data in BD apres la validation :
     if (array_filter($erreur_tab_Modif_art)) {
         echo "Il y a des erreurs dans votre formulaire :";
         foreach ($erreur_tab_Modif_art as $champ => $messageErreur) {
@@ -132,17 +130,19 @@ if (isset($_POST['modifier_article'])) {
         $contenuM = mysqli_real_escape_string($conn, $_POST['contenuM']);
         $categorieM = mysqli_real_escape_string($conn, $_POST['categorieM']);
 
-        $id_article = mysqli_real_escape_string($conn, $_GET['ID_article']);
+        $stmt = $conn->prepare("UPDATE Articles SET Titre = ?, Contenu_article = ?, Categorie = ? WHERE ID_article = ?");
+        if (!$stmt) {
+            die("Erreur lors de la préparation de la requête : " . $conn->error);
+        }
 
-        $sql = "UPDATE Articles SET Titre = '$titreM', Contenu_article = '$contenuM', Categorie = '$categorieM' WHERE ID_article = '$id_article' ";
+        $stmt->bind_param("sssi", $titreM, $contenuM, $categorieM, $id_article);
 
-        $update_result = mysqli_query($conn, $sql);
-        if (!$update_result) {
-            echo "Erreur lors de la modification : " . mysqli_error($conn);
+        if (!$stmt->execute()) {
+            die("Erreur lors de la modification : " . $stmt->error);
         }
 
         echo "Article modifié avec succès !";
-        header("Location: readAuteur.php?ID_article=$id_article");
+        header("Location: readAuteur.php");
     }
 } // end of if (isset($_POST['add_article']))
 
@@ -165,19 +165,19 @@ if (isset($_POST['delete_art'])) {
         }
     }
 
-   // Requête pour supprimer l'article
-   $stmt = $conn->prepare("DELETE FROM Articles WHERE ID_article = ?");
-   if (!$stmt) {
-       die("Erreur de préparation de la requête : " . $conn->error);
-   }
+    // Requête pour supprimer l'article
+    $stmt = $conn->prepare("DELETE FROM Articles WHERE ID_article = ?");
+    if (!$stmt) {
+        die("Erreur de préparation de la requête : " . $conn->error);
+    }
 
-   $stmt->bind_param("i", $id_article);
+    $stmt->bind_param("i", $id_article);
 
-   if (!$stmt->execute()) {
-       die("Erreur lors de la suppression : " . $stmt->error);
-   }
+    if (!$stmt->execute()) {
+        die("Erreur lors de la suppression : " . $stmt->error);
+    }
 
-   $stmt->close();
+    $stmt->close();
 
     header("Location: auteur.php");
     exit;
@@ -210,7 +210,7 @@ if (isset($_POST['delete_art'])) {
         <div
             class="bg-[#1d1d1d] opacity-85 text-white p-6 flex flex-col gap-6 rounded-sm shadow-lg w-[70%] max-sm:w-full">
             <h2 class="text-2xl font-bold text-center">Modifier l'article</h2>
-            <form>
+            <form method="POST" action="">
                 <label for="titreM" class="block mb-2">Titre d'article :</label>
                 <input type="text" id="titreM" class="w-full p-2 mb-4 border-0 rounded-sm bg-black" name="titreM"
                     placeholder="Titre Modifier">
@@ -220,28 +220,35 @@ if (isset($_POST['delete_art'])) {
                 <label for="categorieM" class="block mb-2">Categorie d'article :</label>
                 <input type="categorieM" id="categorieM" class="w-full p-2 mb-4 border-0 rounded-sm bg-black" name="categorieM"
                     placeholder="Catégorie Modifier">
-                <div class="text-red-500 text-xs"><?php echo  $erreur_tab_Modif_art['contenu']; ?></div>
+                <div class="text-red-500 text-xs"><?php echo  $erreur_tab_Modif_art['categorie']; ?></div>
 
 
                 <label for="ContenuM" class="block mb-2">Contenu d'article :</label>
                 <input type="ContenuM" id="ContenuM"
-                    class="w-full p-2 mb-4 border-0 rounded-sm bg-black resize-none h-40" name="ContenuM"
+                    class="w-full p-2 mb-4 border-0 rounded-sm bg-black resize-none h-40" name="contenuM"
                     placeholder="Contenu Modifier">
-                <div class="text-red-500 text-xs"><?php echo  $erreur_tab_Modif_art['categorie']; ?></div>
+                <div class="text-red-500 text-xs"><?php echo  $erreur_tab_Modif_art['contenu']; ?></div>
 
 
                 <div class="flex justify-center h-12">
+                    <button name="annuler_modifier_article"
+                        class="bg-purple-500 border-2 rounded-sm w-44 h-10 font-sans hover:bg-purple-800 hover:text-white">
+                        ignore
+                    </button>
                     <button name="modifier_article"
                         class="bg-purple-500 border-2 rounded-sm w-44 h-10 font-sans hover:bg-purple-800 hover:text-white">
                         Save
                     </button>
                 </div>
+
             </form>
+
+
         </div>
     </div>
 
-    <main class="h-max w-full flex flex-col justify-center items-center gap-10">
-        <section class="h-56 bg-[url('images/bg.jpg')] bg-cover w-full flex justify-center items-center ">
+    <main class="h-max w-full flex flex-col justify-center items-center gap-6">
+        <section class="h-56 bg-purple-900 bg-[url('images/bg.jpg')] bg-cover w-full flex justify-center items-center ">
             <h1 class="lg:text-[60px] max-lg:text-[60px] max-sm:text-[40px] text-center font-bold"
                 style="text-shadow: 0 0 10px #830c61, 0 0 10px #830c61, 0 0 20px #830c61;"><?php echo htmlspecialchars($row_article['Titre']); ?></h1>
         </section>

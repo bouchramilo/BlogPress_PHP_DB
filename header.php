@@ -1,34 +1,34 @@
 <header class="bg-[#1d1d1d] w-full h-16 flex justify-center items-center px-12">
-        <nav class="flex flex-row justify-between w-full">
+        <nav class="flex h-full flex-row justify-between w-full">
             <!-- Logo -->
-            <div class="w-1/12">
+            <div class="w-1/12 h-full flex justify-center items-center">
                 <a href="index.php">
                     <span class="text-2xl text-purple-500 hover:text-purple-800 font-bold">BlogPress</span>
                 </a>
             </div>
             <!-- Menu Links -->
             <div id="menu"
-                class="w-1/2 flex gap-4 flex-shrink lg:flex lg:items-center lg:justify-center hidden flex-col lg:flex-row absolute left-1/2 border-none rounded-2xl lg:relative top-16 lg:top-0 lg:left-auto bg-[#1e1e1e] lg:bg-transparent lg:w-6/12 z-10 lg:z-auto p-4 lg:p-0">
-                <a href="index.php" class="w-full lg:w-1/5   lg:mb-0">
+                class="w-1/2 h-full flex gap-4 flex-shrink lg:flex lg:items-center lg:justify-center hidden flex-col lg:flex-row absolute left-1/2 border-none rounded-2xl lg:relative top-16 lg:top-0 lg:left-auto bg-[#1e1e1e] lg:bg-transparent lg:w-6/12 z-10 lg:z-auto p-4 lg:p-0">
+                <a href="index.php" class="w-full lg:w-1/5 h-3/5  lg:mb-0">
                     <button
                         class="border-b-2 border-b-[#1d1d1d] rounded-sm w-full lg:h-full h-8 font-sans text-xl hover:border-b-4 hover:border-purple-500">
                         Home
                     </button>
                 </a>
-                <a href="auteur.php" class="w-full lg:w-1/5   lg:mb-0">
+                <a href="auteur.php" class="w-full lg:w-1/5 h-3/5  lg:mb-0">
                     <button
                         class="border-b-2 border-b-[#1d1d1d] rounded-sm w-full lg:h-full h-8 font-sans text-xl hover:border-b-4 hover:border-purple-500">
                         auteur
                     </button>
                 </a>
 
-                <a href="connexion.php" class="w-full lg:w-1/5   lg:mb-0">
+                <a href="connexion.php" class="w-full lg:w-1/5 h-3/5  lg:mb-0">
                     <button
                         class="max-sm:text-sm bg-purple-500 border-2 rounded-sm w-full lg:h-full h-8 font-saxl hover:bg-purple-800 hover:text-white">
                         Connexion
                     </button>
                 </a>
-                <a href="inscription.php" class="w-full lg:w-1/5   lg:mb-0">
+                <a href="inscription.php" class="w-full lg:w-1/5 h-3/5  lg:mb-0">
                     <button
                         class="max-sm:text-sm bg-purple-500 border-2 rounded-sm w-full lg:h-full h-8 font-saxl hover:bg-purple-800 hover:text-white">
                         Inscription

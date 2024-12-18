@@ -70,14 +70,24 @@ if (isset($_POST['add_article'])) {
 
         // $id_auteur = mysqli_real_escape_string($conn, $_GET['id_auteur']);
 
-        $sql = "INSERT INTO Articles (Titre, Contenu_article, Categorie, date_creation, ID_auteur) VALUES('$titre', '$contenu', '$categorie', CURDATE(), '$id_auteur')";
+        $sql = "INSERT INTO Articles (Titre, Contenu_article, Categorie, date_creation, ID_auteur) VALUES (?, ?, ?, CURDATE(), ?)";
 
-        if (mysqli_query($conn, $sql)) {
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            die("Erreur lors de la préparation de la requête : " . $conn->error);
+        }
+
+        $stmt->bind_param("sssi", $titre, $contenu, $categorie, $id_auteur);
+
+        if ($stmt->execute()) {
             echo "Article ajouté avec succès !";
             header("Location: auteur.php");
+            exit;
         } else {
-            echo "Erreur : " . mysqli_error($conn);
+            echo "Erreur : " . $stmt->error;
         }
+
+        $stmt->close();
     }
 } // end of if (isset($_POST['add_article']))
 ?>
@@ -145,11 +155,9 @@ $articles = $resultAfficher->fetch_all(MYSQLI_ASSOC);
 <?php
 // Traiter l'action "read_more_atr" (bouton "Read more")
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['read_more_atr'])) {
-    // Valider et échapper l'ID de l'article
     $id_article = filter_var($_POST['id_art'], FILTER_SANITIZE_NUMBER_INT);
     if ($id_article) {
         $_SESSION['id_article'] = $id_article;
-        // Rediriger vers la page de l'article
         header("Location: readAuteur.php");
         exit();
     } else {
