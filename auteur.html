@@ -130,193 +130,33 @@
                     &#10011; add article
                 </button>
             </div>
-            <div class="grid lg:grid-cols-2 max:lg:grid-cols-2 gap-4 ">
-                <!-- article 1 -->
-                <div
-                    class="flex flex-col gap-2 px-2 py-2 shadow-md shadow-[#830c61] border-0 rounded-sm hover:border-[1px] hover:border-[#830c61] hover:shadow-lg hover:shadow-[#830c61] ">
-                    <h1 class="lg:text-2xl max-lg:text-2xl max-sm:text-xl text-[#830c61]">titre de article</h1>
-                    <p class="max-sm:text-sm text-gray-400">date de création : 14-12-2024</p>
-                    <p class="max-sm:text-sm text-gray-400">Catégorie : gere de l'article </p>
-                    <p class="max-sm:text-sm">Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita
-                        quidem culpa error sunt
-                        nemo unde? Fuga alias, nesciunt aliquam aperiam beatae porro distinctio officia asperiores
-                        repellendus harum nulla nam rem!
-                        Alias, sit voluptate! Explicabo libero, totam temporibus unde modi cum doloremque commodi
-                        vero minus natus id nesciunt facilis ex nam corrupti, iste minima amet fugit consectetur
-                        esse rerum, omnis ipsum?
-                    </p>
-                    <div class="flex flex-row justify-between gap-2 max-sm:flex-col">
+            <div class="w-full  ">
+                <table class="w-full ">
+                    <thead class="h-14 ">
+                        <tr>
+                            <th class="text-center bg-purple-800 border border-black rounded-lg hidden">ID</th>
+                            <th class="text-center bg-purple-800 border border-black rounded-lg">Title</th>
+                            <th class="text-center bg-purple-800 border border-black rounded-lg">Categorie</th>
+                            <th class="text-center bg-purple-800 border border-black rounded-lg">Views</th>
+                            <th class="text-center bg-purple-800 border border-black rounded-lg">Likes</th>
+                            <th class="text-center bg-purple-800 border border-black rounded-lg w-18">Comment</th>
+                            <th class="text-center bg-purple-800 border border-black rounded-lg">Edit</th>
 
-                        <div class="flex flex-row gap-2">
-                            <p>&#10084; 5</p>
-                            <div class="flex ">
-                                <img src="images/icones/vue.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-                            <div class="flex ">
-                                <img src="images/icones/comment.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
+                        </tr>
+                    </thead>
+                    <tbody class="h-14 bg-purple-500">
+                        <tr>
+                            <!-- <td class="text-center border border-black rounded-lg">id</td> -->
+                            <td class="text-center border border-black rounded-lg">titre</td>
+                            <td class="text-center border border-black rounded-lg">cate</td>
+                            <td class="text-center border border-black rounded-lg">12</td>
+                            <td class="text-center border border-black rounded-lg">10</td>
+                            <td class="text-center border border-black rounded-lg">2</td>
+                            <td class="text-center border border-black rounded-lg"><a href="readAuteur.html" class="flex justify-center"><img src="images/icones/edit.png" alt="" class="w-10 hover:border-2 rounded-lg hover:bg-blue-600"></a></td>
+                        </tr>
 
-                        </div>
-                        <div class="flex flex-row gap-2 max-sm:justify-end">
-                            <button
-                                class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white">
-                                read
-                            </button>
-                            <button
-                                class="updateform max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white"">
-                                update
-                            </button>
-                            <button
-                                class=" max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans
-                                hover:bg-[#830c61] hover:text-white"">
-                                delete
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- article 1 -->
-                <div
-                    class="flex flex-col gap-2 px-2 py-2 shadow-md shadow-[#830c61] border-0 rounded-sm hover:border-[1px] hover:border-[#830c61] hover:shadow-lg hover:shadow-[#830c61] ">
-                    <h1 class="lg:text-2xl max-lg:text-2xl max-sm:text-xl text-[#830c61]">titre de article</h1>
-                    <p class="max-sm:text-sm text-gray-400">date de création : 14-12-2024</p>
-                    <p class="max-sm:text-sm text-gray-400">Catégorie : gere de l'article </p>
-                    <p class="max-sm:text-sm">Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita
-                        quidem culpa error sunt
-                        nemo unde? Fuga alias, nesciunt aliquam aperiam beatae porro distinctio officia asperiores
-                        repellendus harum nulla nam rem!
-                        Alias, sit voluptate! Explicabo libero, totam temporibus unde modi cum doloremque commodi
-                        vero minus natus id nesciunt facilis ex nam corrupti, iste minima amet fugit consectetur
-                        esse rerum, omnis ipsum?
-                    </p>
-                    <div class="flex flex-row justify-between gap-2 max-sm:flex-col">
-
-                        <div class="flex flex-row gap-2">
-                            <p>&#10084; 5</p>
-                            <div class="flex ">
-                                <img src="images/icones/vue.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-                            <div class="flex ">
-                                <img src="images/icones/comment.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-
-                        </div>
-                        <div class="flex flex-row gap-2 max-sm:justify-end">
-                            <button
-                                class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white">
-                                read
-                            </button>
-                            <button
-                                class="updateform max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white"">
-                                update
-                            </button>
-                            <button
-                                class=" max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans
-                                hover:bg-[#830c61] hover:text-white"">
-                                delete
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- article 1 -->
-                <div
-                    class="flex flex-col gap-2 px-2 py-2 shadow-md shadow-[#830c61] border-0 rounded-sm hover:border-[1px] hover:border-[#830c61] hover:shadow-lg hover:shadow-[#830c61] ">
-                    <h1 class="lg:text-2xl max-lg:text-2xl max-sm:text-xl text-[#830c61]">titre de article</h1>
-                    <p class="max-sm:text-sm text-gray-400">date de création : 14-12-2024</p>
-                    <p class="max-sm:text-sm text-gray-400">Catégorie : gere de l'article </p>
-                    <p class="max-sm:text-sm">Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita
-                        quidem culpa error sunt
-                        nemo unde? Fuga alias, nesciunt aliquam aperiam beatae porro distinctio officia asperiores
-                        repellendus harum nulla nam rem!
-                        Alias, sit voluptate! Explicabo libero, totam temporibus unde modi cum doloremque commodi
-                        vero minus natus id nesciunt facilis ex nam corrupti, iste minima amet fugit consectetur
-                        esse rerum, omnis ipsum?
-                    </p>
-                    <div class="flex flex-row justify-between gap-2 max-sm:flex-col">
-
-                        <div class="flex flex-row gap-2">
-                            <p>&#10084; 5</p>
-                            <div class="flex ">
-                                <img src="images/icones/vue.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-                            <div class="flex ">
-                                <img src="images/icones/comment.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-
-                        </div>
-                        <div class="flex flex-row gap-2 max-sm:justify-end">
-                            <button
-                                class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white">
-                                read
-                            </button>
-                            <button
-                                class="updateform max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white">
-                                update
-                            </button>
-                            <button class=" max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans
-                                hover:bg-[#830c61] hover:text-white">
-                                delete
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- article 1 -->
-                <div
-                    class="flex flex-col gap-2 px-2 py-2 shadow-md shadow-[#830c61] border-0 rounded-sm hover:border-[1px] hover:border-[#830c61] hover:shadow-lg hover:shadow-[#830c61] ">
-                    <h1 class="lg:text-2xl max-lg:text-2xl max-sm:text-xl text-[#830c61]">titre de article</h1>
-                    <p class="max-sm:text-sm text-gray-400">date de création : 14-12-2024</p>
-                    <p class="max-sm:text-sm text-gray-400">Catégorie : gere de l'article </p>
-                    <p class="max-sm:text-sm">Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita
-                        quidem culpa error sunt
-                        nemo unde? Fuga alias, nesciunt aliquam aperiam beatae porro distinctio officia asperiores
-                        repellendus harum nulla nam rem!
-                        Alias, sit voluptate! Explicabo libero, totam temporibus unde modi cum doloremque commodi
-                        vero minus natus id nesciunt facilis ex nam corrupti, iste minima amet fugit consectetur
-                        esse rerum, omnis ipsum?
-                    </p>
-                    <div class="flex flex-row justify-between gap-2 max-sm:flex-col">
-
-                        <div class="flex flex-row gap-2">
-                            <p>&#10084; 5</p>
-                            <div class="flex ">
-                                <img src="images/icones/vue.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-                            <div class="flex ">
-                                <img src="images/icones/comment.png" alt="comment" class="w-6">
-                                <p>7</p>
-                            </div>
-
-                        </div>
-                        <div class="flex flex-row gap-2 max-sm:justify-end">
-                            <button
-                                class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white">
-                                read
-                            </button>
-                            <button
-                                class="updateform max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans hover:bg-[#830c61] hover:text-white"">
-                                update
-                            </button>
-                            <button
-                                class=" max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-16 lg:h-full h-8 font-sans
-                                hover:bg-[#830c61] hover:text-white"">
-                                delete
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
+                    </tbody>
+                </table>
 
 
             </div>

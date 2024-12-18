@@ -1,11 +1,11 @@
 <?php
 session_start();
-include('connect_DB.php'); // Inclusion du fichier de connexion
+include('connect_DB.php');
+?>
 
-// Initialisation des variables
-$id_article = null;
-$all_commentaires = [];
-$row_article = [];
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- // pour l'affichage des articles aux visiteurs : ========================================================================================================= -->
+<?php
 
 // Vérifier si un article est sélectionné via POST ou une session
 if (isset($_POST['id_article']) || isset($_SESSION['id_article'])) {
@@ -15,27 +15,7 @@ if (isset($_POST['id_article']) || isset($_SESSION['id_article'])) {
     } else {
         $id_article = $_SESSION['id_article'];
     }
-
-    // Vérifier si l'article a déjà été consulté dans cette session
-    if (!isset($_SESSION['viewed_articles'])) {
-        $_SESSION['viewed_articles'] = []; // Initialisation des articles déjà vus
-    }
-
-    if (!in_array($id_article, $_SESSION['viewed_articles'])) {
-        // Ajouter l'article au tableau des articles vus
-        $_SESSION['viewed_articles'][] = $id_article;
-
-        // Incrémenter les vues (requête préparée)
-        $sql_vue = "INSERT INTO likes_vues (ID_article, nbr_L_V, type) VALUES (?, 1, 'vue')";
-        $stmt = $conn->prepare($sql_vue);
-        $stmt->bind_param("i", $id_article); // Lier l'ID de l'article comme entier
-        if (!$stmt->execute()) {
-            die("Erreur lors de l'ajout de la vue : " . $stmt->error);
-        }
-        $stmt->close();
-    }
-
-    // Requête pour récupérer les informations de l'article
+    // requete d'affichage les information d'une article : =========================================================
     $sql_Art = "SELECT 
             Articles.ID_article, 
             Articles.Titre,
@@ -44,6 +24,7 @@ if (isset($_POST['id_article']) || isset($_SESSION['id_article'])) {
             DATE_FORMAT(Articles.date_creation, '%d-%m-%Y') AS date_creation,
             Auteurs.Nom_auteur,
             Auteurs.Prénom_auteur,
+            Auteurs.ID_auteur,
             (SELECT COUNT(*) FROM likes_vues WHERE likes_vues.ID_article = Articles.ID_article AND likes_vues.type = 'like') AS nbr_likes,
             (SELECT COUNT(*) FROM likes_vues WHERE likes_vues.ID_article = Articles.ID_article AND likes_vues.type = 'vue') AS nbr_vues,
             (SELECT COUNT(*) FROM Commentaires WHERE Commentaires.id_article = Articles.ID_article) AS nbr_commentaires
@@ -52,7 +33,7 @@ if (isset($_POST['id_article']) || isset($_SESSION['id_article'])) {
         JOIN 
             Auteurs ON Articles.ID_auteur = Auteurs.ID_auteur
         WHERE 
-            Articles.ID_article = ?";
+            Articles.ID_article = ? ;";
 
     $stmt = $conn->prepare($sql_Art);
     $stmt->bind_param("i", $id_article); // Lier l'ID de l'article comme entier
@@ -60,6 +41,9 @@ if (isset($_POST['id_article']) || isset($_SESSION['id_article'])) {
     $resultat = $stmt->get_result();
     $row_article = $resultat->fetch_assoc(); // Récupération des données de l'article
     $stmt->close();
+
+
+    // afficher les commentaires de cette article ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     // Requête pour récupérer les commentaires de l'article
     $sql_cmt_Art = "SELECT 
@@ -78,144 +62,131 @@ if (isset($_POST['id_article']) || isset($_SESSION['id_article'])) {
     $resultat_cmt = $stmt->get_result();
     $all_commentaires = $resultat_cmt->fetch_all(MYSQLI_ASSOC); // Récupération des commentaires
     $stmt->close();
+
 }
+
 ?>
 
 
-<!-- système commaentaire : add commentaire ============================================================================================================================= -->
+<!-- Modifier Articles : ==================================================================================================== -->
 <?php
-$erreur_tab_Add_cmt = [
-    'nom_prenom' => '',
-    'email' => '',
-    'commentaire' => ''
+
+$erreur_tab_Modif_art = [
+    'titre' => '',
+    'contenu' => '',
+    'categorie' => ''
 ];
 
-$nom_prenom = $email = $commentaire = $id_article = '';
-
-// Validation du formulaire
-if (isset($_POST['add_comment'])) {
-    // Validation du nom_prenom
-    if (empty($_POST['nom_prenom_visiteur'])) {
-        $erreur_tab_Add_cmt['nom_prenom'] = 'Le nom_prenom est vide!!!';
+if (isset($_POST['modifier_article'])) {
+    // Validation du titre
+    if (empty($_POST['titreM'])) {
+        $erreur_tab_Modif_art['titre'] = 'Le titre est vide!!!';
     } else {
-        $nom_prenom = $_POST['nom_prenom_visiteur'];
-        if (!preg_match('/^[A-Za-z]{2,}([ -][A-Za-z]{2,})*$/', $nom_prenom)) {
-            $erreur_tab_Add_cmt['nom_prenom'] = 'le nom_prenom est invalide !!!!';
+        $titreM = $_POST['titreM'];
+        if (!preg_match('/^[A-Za-zÀ-ÿ0-9\s-]{2,}$/u', $titre)) {
+            $erreur_tab_Modif_art['titre'] = 'le titre est invalide !!!!';
         }
     }
 
-    // Validation de l'email
-    if (empty($_POST['email_visiteur'])) {
-        $erreur_tab_Add_cmt['email'] = 'L\'email est vide!!!';
+    // Validation du catégorie
+    if (empty($_POST['categorieM'])) {
+        $erreur_tab_Modif_art['categorie'] = 'Le categirie est vide!!!';
     } else {
-        $email = $_POST['email_visiteur'];
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $erreur_tab_Add_cmt['email'] = 'L\'email est invalide !!!!';
+        $categorie = $_POST['categorieM'];
+        if (!preg_match('/^[A-Za-zÀ-ÿ\s-]{2,}$/u', $categorie)) {
+            $erreur_tab_Modif_art['categorie'] = 'Le catégorie est invalide !!!!';
         }
     }
 
-    // Validation du commentaire
-    if (empty($_POST['comment_visiteur'])) {
-        $erreur_tab_Add_cmt['commentaire'] = 'Le commentaire est vide!!!';
+    // Validation du contenue
+    if (empty($_POST['contenuM'])) {
+        $erreur_tab_Modif_art['contenu'] = 'Le contenu est vide!!!';
     } else {
-        $commentaire = $_POST['comment_visiteur'];
-        if (!preg_match('/^[\w\s.,!?\'"À-ÿ-]{2,}$/u', $commentaire)) {
-            $erreur_tab_Add_cmt['commentaire'] = 'Le commentaire est invalide !!!!';
+        $contenu = $_POST['contenuM'];
+        if (!preg_match('/^[\w\s.,!?\'"À-ÿ-]{2,}$/u', $contenu)) {
+            $erreur_tab_Modif_art['contenu'] = 'le contenu est invalide !!!!';
         }
     }
 
-    // Récupération de l'ID article
-    if (isset($_POST['id_article'])) {
-        $id_article = $_POST['id_article'];
-        $_SESSION['id_article'] = $id_article; 
+    if (isset($_GET['ID_article'])) {
+        // Extraire l'id_article à partir de URL 
+        $id_article = $_GET['ID_article'];
+
+        $id_article = intval($id_article);
+
+        echo "L'id_article extrait est : " . $id_article;
     } else {
-        $id_article = $_SESSION['id_article'] ?? null;
+        echo "Aucun id_article n'a été fourni dans l'URL.";
     }
 
-    // Si des erreurs existent
-    if (array_filter($erreur_tab_Add_cmt)) {
+    // set data in BD
+    if (array_filter($erreur_tab_Modif_art)) {
         echo "Il y a des erreurs dans votre formulaire :";
-        foreach ($erreur_tab_Add_cmt as $champ => $messageErreur) {
+        foreach ($erreur_tab_Modif_art as $champ => $messageErreur) {
             if (!empty($messageErreur)) {
                 echo "<p class='text-red-500'>$messageErreur</p>";
             }
         }
     } else {
-        // Ajouter le commentaire en utilisant des requêtes préparées
-        $sql = "INSERT INTO commentaires (Nom_visiteur, email_visiteur, contenu_comment, id_article) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
+        $titreM = mysqli_real_escape_string($conn, $_POST['titreM']);
+        $contenuM = mysqli_real_escape_string($conn, $_POST['contenuM']);
+        $categorieM = mysqli_real_escape_string($conn, $_POST['categorieM']);
 
-        if ($stmt) {
-            $stmt->bind_param("sssi", $nom_prenom, $email, $commentaire, $id_article);
+        $id_article = mysqli_real_escape_string($conn, $_GET['ID_article']);
 
-            if ($stmt->execute()) {
-                echo "Commentaire ajouté avec succès !";
-                header("Location: article.php");
-                exit();
-            } else {
-                echo "Erreur lors de l'ajout du commentaire : " . $stmt->error;
-            }
+        $sql = "UPDATE Articles SET Titre = '$titreM', Contenu_article = '$contenuM', Categorie = '$categorieM' WHERE ID_article = '$id_article' ";
 
-            $stmt->close();
-        } else {
-            echo "Erreur de préparation de la requête : " . $conn->error;
+        $update_result = mysqli_query($conn, $sql);
+        if (!$update_result) {
+            echo "Erreur lors de la modification : " . mysqli_error($conn);
         }
+
+        echo "Article modifié avec succès !";
+        header("Location: readAuteur.php?ID_article=$id_article");
     }
-}
+} // end of if (isset($_POST['add_article']))
+
 ?>
 
-
-<!-- système likes ======================================================================================================================================== -->
+<!-- DELETE ARTICLE ================================================================================ -->
 <?php
-if (isset($_POST['add_like'])) {
-    // Validation et récupération de l'ID article
+
+if (isset($_POST['delete_art'])) {
     if (isset($_POST['id_article'])) {
-        $id_article = filter_var($_POST['id_article'], FILTER_VALIDATE_INT);
-        if ($id_article === false) {
-            die("ID de l'article invalide !");
+        $id_article = mysqli_real_escape_string($conn, $_POST['id_article']);
+        if (!is_numeric($id_article)) {
+            die("ID article invalide !");
         }
         $_SESSION['id_article'] = $id_article;
     } else {
         $id_article = $_SESSION['id_article'] ?? null;
-        if ($id_article === null) {
-            die("ID de l'article manquant !");
+        if (empty($id_article) || !is_numeric($id_article)) {
+            die("ID article non spécifié ou invalide !");
         }
     }
 
-    // Ajout du like à la base de données
-    $sql_like = "INSERT INTO likes_vues (ID_article, nbr_L_V, type) VALUES (?, 1, 'like')";
-    $stmt_like = $conn->prepare($sql_like);
-    if (!$stmt_like) {
-        die("Erreur de préparation de la requête : " . $conn->error);
-    }
+   // Requête pour supprimer l'article
+   $stmt = $conn->prepare("DELETE FROM Articles WHERE ID_article = ?");
+   if (!$stmt) {
+       die("Erreur de préparation de la requête : " . $conn->error);
+   }
 
-    $stmt_like->bind_param("i", $id_article);
-    if ($stmt_like->execute()) {
-        echo "Like ajouté avec succès !";
-    } else {
-        die("Erreur lors de l'ajout du like : " . $stmt_like->error);
-    }
+   $stmt->bind_param("i", $id_article);
 
-    $stmt_like->close();
+   if (!$stmt->execute()) {
+       die("Erreur lors de la suppression : " . $stmt->error);
+   }
 
-    // Redirection vers la page de l'article
-    header("Location: article.php");
-    exit();
+   $stmt->close();
+
+    header("Location: auteur.php");
+    exit;
 }
 ?>
 
 
-
-
-
-
-
-
-
-
-
-
-
+<!-- ======================================================================================= -->
+<!-- code html  code html  code html  code html  code html  code html  code html  code html  -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -224,7 +195,7 @@ if (isset($_POST['add_like'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>BlogPress - Article</title>
+    <title>BlogPress - Auteur_Article</title>
 </head>
 
 <body class="text-white flex flex-col items-center gap-2 bg-black ">
@@ -233,28 +204,36 @@ if (isset($_POST['add_like'])) {
     <?php include 'header.php'; ?>
 
 
-    <!-- Formulaire caché -->
-    <div id="formContainer" class="fixed inset-0 bg-white bg-opacity-50 flex justify-center items-center hidden">
-        <div class="bg-[#1d1d1d] opacity-85 text-white p-6 flex flex-col gap-6 rounded-sm shadow-lg w-96">
-            <h2 class="text-2xl font-bold text-center">Commenter</h2>
-            <form method="POST">
-                <label for="nom" class="block mb-2">Nom & Prénom :</label>
-                <input type="text" id="nom" class="w-full p-2 mb-4 border-0 rounded-sm bg-black" name="nom_prenom_visiteur"
-                    placeholder="Votre nom et prenom">
+    <!-- Formulaire modification caché -->
+    <div id="formContainerModifier"
+        class="fixed inset-0 bg-white bg-opacity-50 flex justify-center items-center hidden">
+        <div
+            class="bg-[#1d1d1d] opacity-85 text-white p-6 flex flex-col gap-6 rounded-sm shadow-lg w-[70%] max-sm:w-full">
+            <h2 class="text-2xl font-bold text-center">Modifier l'article</h2>
+            <form>
+                <label for="titreM" class="block mb-2">Titre d'article :</label>
+                <input type="text" id="titreM" class="w-full p-2 mb-4 border-0 rounded-sm bg-black" name="titreM"
+                    placeholder="Titre Modifier">
+                <div class="text-red-500 text-xs"><?php echo  $erreur_tab_Modif_art['titre']; ?></div>
 
-                <label for="email" class="block mb-2">Email:</label>
-                <input type="email" id="email" class="w-full p-2 mb-4 border-0 rounded-sm bg-black" name="email_visiteur"
-                    placeholder="Votre adresse e-mail">
 
-                <label for="commentaire" class="block mb-2">Commentaire :</label>
-                <input type="commentaire" id="commentaire"
-                    class="w-full p-2 mb-4 border-0 rounded-sm bg-black resize-none" name="comment_visiteur"
-                    placeholder="Votre commentaire.">
+                <label for="categorieM" class="block mb-2">Categorie d'article :</label>
+                <input type="categorieM" id="categorieM" class="w-full p-2 mb-4 border-0 rounded-sm bg-black" name="categorieM"
+                    placeholder="Catégorie Modifier">
+                <div class="text-red-500 text-xs"><?php echo  $erreur_tab_Modif_art['contenu']; ?></div>
+
+
+                <label for="ContenuM" class="block mb-2">Contenu d'article :</label>
+                <input type="ContenuM" id="ContenuM"
+                    class="w-full p-2 mb-4 border-0 rounded-sm bg-black resize-none h-40" name="ContenuM"
+                    placeholder="Contenu Modifier">
+                <div class="text-red-500 text-xs"><?php echo  $erreur_tab_Modif_art['categorie']; ?></div>
+
 
                 <div class="flex justify-center h-12">
-                    <button name="add_comment"
-                        class="bg-[#d025a0] border-2 rounded-sm w-44 h-10 font-sans hover:bg-[#830c61] hover:text-white">
-                        Envoyer
+                    <button name="modifier_article"
+                        class="bg-purple-500 border-2 rounded-sm w-44 h-10 font-sans hover:bg-purple-800 hover:text-white">
+                        Save
                     </button>
                 </div>
             </form>
@@ -262,7 +241,7 @@ if (isset($_POST['add_like'])) {
     </div>
 
     <main class="h-max w-full flex flex-col justify-center items-center gap-10">
-        <section class="h-56 bg-[url('images/bg3.jpg')] bg-cover w-full flex justify-center items-center ">
+        <section class="h-56 bg-[url('images/bg.jpg')] bg-cover w-full flex justify-center items-center ">
             <h1 class="lg:text-[60px] max-lg:text-[60px] max-sm:text-[40px] text-center font-bold"
                 style="text-shadow: 0 0 10px #830c61, 0 0 10px #830c61, 0 0 20px #830c61;"><?php echo htmlspecialchars($row_article['Titre']); ?></h1>
         </section>
@@ -283,14 +262,15 @@ if (isset($_POST['add_like'])) {
                 </div>
                 <div class="w-[95%] h-max flex flex-row gap-2 p-2">
                     <form action="" method="POST">
-                        <button name="add_like"
+                        <!-- auteur.php?id_auteur=<?php echo htmlspecialchars($row_article['ID_auteur']); ?> -->
+                        <button name="delete_art"
                             class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-40 h-9 font-sans hover:bg-[#830c61] hover:text-white">
-                            like &#10084;
+                            DELETE
                         </button>
                     </form>
-                    <button id="showFormButton" class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-40 h-9 font-sans hover:bg-[#830c61]
+                    <button id="showFormButton" class="updateform max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-40 h-9 font-sans hover:bg-[#830c61]
                         hover:text-white">
-                        commenter
+                        UPDATE
                     </button>
                 </div>
                 <div class="w-[95%] border-2 border-[#830c62] h-max flex flex-col gap-2 p-2">
@@ -323,5 +303,6 @@ if (isset($_POST['add_like'])) {
 </body>
 <script src="js/menu_theme.js"></script>
 <script src="js/commentFormC.js"></script>
+<script src="js/update_article.js"></script>
 
 </html>

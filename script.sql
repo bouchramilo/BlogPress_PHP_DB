@@ -14,13 +14,59 @@ SELECT * from Articles ;
 SELECT * from Commentaires ;
 SELECT * from likes_vues ;
 
+
+--  création des TABLEAUX : ================================================================================================================================================
+-- table Auteurs :
+CREATE TABLE Auteurs (
+    ID_auteur INT PRIMARY KEY AUTO_INCREMENT,
+    Nom_auteur VARCHAR(50) NOT NULL,
+    Prénom_auteur VARCHAR(50) NOT NULL,
+    Email_auteur VARCHAR(100) UNIQUE NOT NULL,
+    Password VARCHAR(255) NOT NULL
+);
+
+-- table Articles : 
+CREATE TABLE Articles (
+    ID_article INT PRIMARY KEY AUTO_INCREMENT,
+    Titre VARCHAR(100) NOT NULL,
+    Contenu_article TEXT NOT NULL,
+    Categorie VARCHAR(50), -- genre de l'article 
+    date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ID_auteur INT,
+    FOREIGN KEY (ID_auteur) REFERENCES Auteurs(ID_auteur) ON DELETE CASCADE
+);
+
+-- table Commentaires : 
+CREATE TABLE Commentaires (
+    ID_Comment INT PRIMARY KEY AUTO_INCREMENT,
+    Nom_visiteur VARCHAR(50) NOT NULL,
+    email_visiteur VARCHAR(100) NOT NULL,
+    contenu_comment TEXT NOT NULL,
+    date_comment DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id_article INT,
+    FOREIGN KEY (id_article) REFERENCES Articles(ID_article) ON DELETE CASCADE
+);
+
+-- table likes_vues : 
+CREATE TABLE likes_vues (
+    ID_L_V INT AUTO_INCREMENT PRIMARY KEY,
+    nbr_L_V INT NOT NULL,
+    type ENUM('like', 'vue') NOT NULL,
+    ID_article INT,
+    FOREIGN KEY (ID_article) REFERENCES Articles(ID_article) ON DELETE CASCADE
+);
+
+-- Contenu des tables : ====================================================================
+SELECT * from Auteurs ;
+SELECT * from Articles ;
+SELECT * from Commentaires ;
+SELECT * from likes_vues ;
+-- =========================================================================================
+
+-- insert into auteurs (test) :
 INSERT INTO Auteurs (Nom_auteur, Prénom_auteur, Email_auteur, Password)
 VALUES
-('Dupont', 'Jean', 'jean.dupont@example.com', 'password1'),
-('Martin', 'Sophie', 'sophie.martin@example.com', 'password2'),
-('Lambert', 'Paul', 'paul.lambert@example.com', 'password3'),
-('Durand', 'Alice', 'alice.durand@example.com', 'password4'),
-('Lemoine', 'Claire', 'claire.lemoine@example.com', 'password5');
+('Test', 'Test', 'test@gmail.com', 'Test123$');
 
 
 -- requete pour afficher les information des articles d'un auteur :
@@ -42,64 +88,25 @@ JOIN
 WHERE 
     Auteurs.ID_auteur = 6 ;
 
-
+-- update Articles : 
 UPDATE Articles
 SET Titre = "test update", Contenu_article = "contenue modifier de l'article test tes testest test ", Categorie = "categoryUpdate"
 WHERE ID_article = 9 ;
 
-
---  création des TABLEAUX : ================================================================================================================================================
-
-CREATE TABLE Auteurs (
-    ID_auteur INT PRIMARY KEY AUTO_INCREMENT,
-    Nom_auteur VARCHAR(50) NOT NULL,
-    Prénom_auteur VARCHAR(50) NOT NULL,
-    Email_auteur VARCHAR(100) UNIQUE NOT NULL,
-    Password VARCHAR(255) NOT NULL
-);
-
-
-CREATE TABLE Articles (
-    ID_article INT PRIMARY KEY AUTO_INCREMENT,
-    Titre VARCHAR(100) NOT NULL,
-    Contenu_article TEXT NOT NULL,
-    Categorie VARCHAR(50), -- genre de l'article 
-    date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    ID_auteur INT,
-    FOREIGN KEY (ID_auteur) REFERENCES Auteurs(ID_auteur)
-);
-
-
-CREATE TABLE Commentaires (
-    ID_Comment INT PRIMARY KEY AUTO_INCREMENT,
-    Nom_visiteur VARCHAR(50) NOT NULL,
-    email_visiteur VARCHAR(100) NOT NULL,
-    contenu_vomment TEXT NOT NULL,
-    date_comment DATETIME DEFAULT CURRENT_TIMESTAMP,
-    id_article INT,
-    FOREIGN KEY (id_article) REFERENCES Articles(ID_article)
-);
-
--- insert into commentaires : COMMENT
-INSERT INTO commentaires(Nom_visiteur, email_visiteur, contenu_vomment, id_article) VALUES ('visiteur test', 'visiteur@gmail.com', 'commentaire test', 9);
-
-
-SELECT * FROM commentaires WHERE id_article = 9;
-
-CREATE TABLE likes_vues (
-    ID_L_V INT AUTO_INCREMENT PRIMARY KEY,
-    nbr_L_V INT NOT NULL,
-    type ENUM('like', 'vue') NOT NULL,
-    ID_article INT,
-    FOREIGN KEY (ID_article) REFERENCES Articles(ID_article)
-);
-
-
+-- update likes_vues : 
 UPDATE likes_vues SET nbr_L_V = nbr_L_V + 1 WHERE ID_article = 9 and type = "like";
 
+-- insert into likes_vues : 
 insert into likes_vues (nbr_L_V, type, `ID_article`) VALUES(2, 'like', 9);
 
+-- compter les vues et likes d'un articles : 
 select count(*) from likes_vues WHERE `ID_article` = 2 ;
+
+-- insert into commentaires : COMMENT
+INSERT INTO commentaires(Nom_visiteur, email_visiteur, contenu_comment, id_article) VALUES ('visiteur test', 'visiteur@gmail.com', 'commentaire test', 9);
+
+-- select commentaires d'un article : 
+SELECT * FROM Commentaires WHERE id_article = 12                                                        ;
 
 -- pour supprimer les tableaux : 
 -- 1-
@@ -110,3 +117,14 @@ DROP TABLE likes_vues;
 DROP TABLE Commentaires;
 DROP TABLE articles;
 DROP TABLE auteurs;
+
+-- supprimer les vue d'un article : 
+DELETE from likes_vues WHERE ID_article > 1;
+
+INSERT INTO likes_vues (ID_article, nbr_L_V,  type) VALUES (9, 1, 'vue');
+
+
+
+delete from Articles WHERE ID_article = 9 ;
+
+select * from Articles ; 

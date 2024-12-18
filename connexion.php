@@ -1,9 +1,11 @@
 <?php
 
-include('connect_DB.php');
+include('connect_DB.php'); // Connexion à la base de données
+session_start();
 
-$notFound = '';
+$notFound = ''; // Message d'erreur pour l'utilisateur non trouvé
 
+// Tableau des erreurs
 $erreur_tab_conn = [
     'email' => '',
     'password' => ''
@@ -23,7 +25,7 @@ if (isset($_POST['signin'])) {
         }
     }
 
-    // Validation des mots de passe
+    // Validation du mot de passe
     $passwordRegex = "/^[a-zA-Z0-9$*-+*.&#:?!;,]{8,}$/";
 
     $password = $_POST['password'];
@@ -34,33 +36,43 @@ if (isset($_POST['signin'])) {
         $erreur_tab_conn['password'] = 'Le mot de passe doit contenir au moins 8 caractères, avec des lettres et des chiffres.';
     }
 
-    if (array_filter($erreur_tab_conn)) {
-        // echo "Il y a des erreurs dans votre formulaire :";
-    } else {
-        $email = mysqli_real_escape_string($conn, $_POST['email_auteur']);
-        $password = mysqli_real_escape_string($conn, $_POST['password']);
-
-        $sql = "SELECT ID_auteur, Email_auteur, Password from Auteurs WHERE Email_auteur = '$email' AND BINARY Password = '$password'";
-
-        $result = $conn->query($sql);
+    // Si aucune erreur dans le formulaire
+    if (empty($erreur_tab_conn['email']) && empty($erreur_tab_conn['password'])) {
+        // Requête préparée pour éviter les injections SQL
+        $stmt = $conn->prepare("SELECT ID_auteur, Password FROM Auteurs WHERE Email_auteur = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            // Récupère les données de l'auteur
+            // Utilisateur trouvé
             $row = $result->fetch_assoc();
-            $id_auteur = $row['ID_auteur']; // Récupération de l'ID de l'auteur
+            $hashed_password = $row['Password']; // Mot de passe haché récupéré
 
-            // Redirige vers la page 'auteur.php' avec l'ID dans l'URL
-            header("Location: auteur.php?id_auteur=$id_auteur");
-            exit(); // Terminer le script après la redirection
+            // Vérification du mot de passe
+            if (password_verify($password, $hashed_password)) {
+                $id_auteur = $row['ID_auteur']; // Récupération de l'ID de l'auteur
 
+                $_SESSION['id_auteur'] = $id_auteur;
+
+                echo  $_SESSION['id_auteur'] ;
+
+                // Redirection vers la page 'auteur.php' avec l'ID dans l'URL
+                header("Location: auteur.php");
+                // header("Location: auteur.php?id_auteur=$id_auteur");
+                exit(); // Terminer le script après la redirection
+            } else {
+                $notFound = "Mot de passe incorrect.";
+            }
         } else {
-            $notFound = "Aucun utilisateur trouvé.";
+            $notFound = "Aucun utilisateur trouvé avec cet email.";
         }
+
+        $stmt->close();
     }
-} // end of if (isset($_POST['submit']))
+}
+
 ?>
-
-
 
 
 

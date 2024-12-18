@@ -10,14 +10,14 @@ $erreur_tab = [
     'password2' => ''
 ];
 
-$name = $prenom = $email = $password1 = $password2 = '' ;
+$name = $prenom = $email = $password1 = $password2 = '';
 
 if (isset($_POST['signup'])) {
     // Validation du nom
     if (empty($_POST['nom_auteur'])) {
         $erreur_tab['name'] = 'Le nom est vide!!!';
     } else {
-        $name = $_POST['nom_auteur'];
+        $name = htmlspecialchars($_POST['nom_auteur']);
         if (!preg_match('/^[A-Za-z]{2,}([ -][A-Za-z]{2,})*$/', $name)) {
             $erreur_tab['name'] = 'Le nom doit contenir au moins 2 lettres et ne doit pas contenir de chiffres ou de caractères spéciaux.';
         }
@@ -27,7 +27,7 @@ if (isset($_POST['signup'])) {
     if (empty($_POST['prenom_auteur'])) {
         $erreur_tab['prenom'] = 'Le prénom est vide!!!';
     } else {
-        $prenom = $_POST['prenom_auteur'];
+        $prenom = htmlspecialchars($_POST['prenom_auteur']);
         if (!preg_match('/^[A-Za-z]{2,}([ -][A-Za-z]{2,})*$/', $prenom)) {
             $erreur_tab['prenom'] = 'Le prénom doit contenir au moins 2 lettres et ne doit pas contenir de chiffres ou de caractères spéciaux.';
         }
@@ -37,7 +37,7 @@ if (isset($_POST['signup'])) {
     if (empty($_POST['email_auteur'])) {
         $erreur_tab['email'] = 'L\'email est vide!!!';
     } else {
-        $email = $_POST['email_auteur'];
+        $email = htmlspecialchars($_POST['email_auteur']);
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $erreur_tab['email'] = 'L\'email n\'est pas valide!!!';
         }
@@ -46,8 +46,8 @@ if (isset($_POST['signup'])) {
     // Validation des mots de passe
     $passwordRegex = "/^[a-zA-Z0-9$*-+*.&#:?!;,]{8,}$/";
 
-    $password1 = $_POST['password1'] ;
-    $password2 = $_POST['password2'] ;
+    $password1 = $_POST['password1'];
+    $password2 = $_POST['password2'];
 
     if (empty($password1)) {
         $erreur_tab['password1'] = 'Le mot de passe est vide!!!';
@@ -61,31 +61,33 @@ if (isset($_POST['signup'])) {
         $erreur_tab['password2'] = 'Les mots de passe ne correspondent pas.';
     }
 
-    if(array_filter($erreur_tab)){
-        // echo "Il y a des erreurs dans votre formulaire :";
-    }
-    else{
-        $name = mysqli_real_escape_string($conn, $_POST['nom_auteur']);
-        $prenom = mysqli_real_escape_string($conn, $_POST['prenom_auteur']);
-        $email = mysqli_real_escape_string($conn, $_POST['email_auteur']);
-        $password1 = mysqli_real_escape_string($conn, $_POST['password1']);
-        // $password2 = mysqli_real_escape_string($conn, $_POST['password2']);
+    
+    if (!array_filter($erreur_tab)) {
+        $name = mysqli_real_escape_string($conn, $name);
+        $prenom = mysqli_real_escape_string($conn, $prenom);
+        $email = mysqli_real_escape_string($conn, $email);
+        
+        // Hachage du mot de passe
+        $password_hashed = password_hash($password1, PASSWORD_BCRYPT);
 
-        $sql = "INSERT INTO Auteurs (Nom_auteur, Prénom_auteur, Email_auteur, Password) VALUES('$name', '$prenom', '$email', '$password1')";
+        
+        $statment = $conn->prepare("INSERT INTO Auteurs (Nom_auteur, Prénom_auteur, Email_auteur, Password) VALUES (?, ?, ?, ?)");
+        $statment->bind_param("ssss", $name, $prenom, $email, $password_hashed);
 
-        if(mysqli_query($conn, $sql)){
-            // success
+        if ($statment->execute()) {
+            // Succès
             header('Location: connexion.php');
-        }
-        else{
-            // error
-            echo "Erreur lors de l'insertion des données : " . mysqli_error($conn);
+        } else {
+            // Erreur
+            echo "Erreur lors de l'insertion des données : " . $statment->error;
         }
 
+        $statment->close();
     }
+}
 
-} // end of if (isset($_POST['submit']))
 ?>
+
 
 
 
@@ -102,8 +104,9 @@ if (isset($_POST['signup'])) {
 
 <body class="text-white flex flex-col items-center gap-2 bg-black ">
 
-    <!-- header -->
+    <!-- header  header  header  header  header  header  header  header  header  header  header  header  header  header -->
     <?php include('header.php'); ?>
+    <!-- header  header  header  header  header  header  header  header  header  header  header  header  header  header -->
 
     <main class="h-max w-full flex flex-col justify-center items-center gap-2">
         <section class="h-screen bg-[url('images/bg3.jpg')] bg-cover w-full flex justify-center items-center ">
@@ -151,8 +154,9 @@ if (isset($_POST['signup'])) {
     </main>
 
 
-    <!-- footer -->
+    <!-- footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer -->
     <?php include('footer.php'); ?>
+    <!-- footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer -->
 
 </body>
 <script src="js/menu_theme.js"></script>
