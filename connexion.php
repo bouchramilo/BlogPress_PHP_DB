@@ -39,7 +39,7 @@ if (isset($_POST['signin'])) {
     // Si aucune erreur dans le formulaire
     if (empty($erreur_tab_conn['email']) && empty($erreur_tab_conn['password'])) {
         // Requête préparée pour éviter les injections SQL
-        $stmt = $conn->prepare("SELECT ID_auteur, Password FROM Auteurs WHERE Email_auteur = ?");
+        $stmt = $conn->prepare("SELECT ID_auteur, Password, Nom_auteur FROM Auteurs WHERE Email_auteur = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -55,7 +55,10 @@ if (isset($_POST['signin'])) {
 
                 $_SESSION['id_auteur'] = $id_auteur;
 
-                echo  $_SESSION['id_auteur'] ;
+                echo  $_SESSION['id_auteur'];
+
+                $_SESSION['Nom_auteur'] = $row['Nom_auteur'];
+                echo $_SESSION['Nom_auteur'];
 
                 // Redirection vers la page 'auteur.php' avec l'ID dans l'URL
                 header("Location: auteur.php");
@@ -105,19 +108,19 @@ if (isset($_POST['signin'])) {
 
                     <label for="email">Adresse e-mail : </label>
                     <input type="email" name="email_auteur" id="email_auteur" placeholder="Votre adresse e-mail." value="<?php echo htmlspecialchars($email); ?>"
-                        class="h-12 text-white bg-black px-2 border-0 hover:border-2 hover:border-[#830c62]">
+                        class="h-12 text-white bg-black px-2 border-0 hover:border-2 hover:border-purple-500">
                     <div class="text-red-500 text-xs"><?php echo  $erreur_tab_conn['email']; ?></div>
 
 
                     <label for="password">Mot de passe : </label>
                     <input type="password" name="password" id="password" placeholder="Votre mot de passe" value="<?php echo htmlspecialchars($password); ?>"
-                        class="h-12 text-white bg-black px-2 border-0 hover:border-2 hover:border-[#830c62]">
+                        class="h-12 text-white bg-black px-2 border-0 hover:border-2 hover:border-purple-500">
                     <div class="text-red-500 text-xs"><?php echo  $erreur_tab_conn['password']; ?></div>
 
 
                     <div class="flex justify-center h-12 pt-4">
                         <button name="signin"
-                            class="bg-[#d025a0] border-2 rounded-sm w-44 h-12 font-sans text-xl hover:bg-[#830c61] hover:text-white">
+                            class="bg-purple-500 border-2 rounded-sm w-44 h-12 font-sans text-xl hover:bg-purple-800 hover:text-white">
                             sign in
                         </button>
                     </div>

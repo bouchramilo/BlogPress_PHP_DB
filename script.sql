@@ -128,3 +128,39 @@ INSERT INTO likes_vues (ID_article, nbr_L_V,  type) VALUES (9, 1, 'vue');
 delete from Articles WHERE ID_article = 9 ;
 
 select * from Articles ; 
+
+
+SELECT 
+    Articles.ID_article,
+    Auteurs.ID_auteur,
+    (SELECT COUNT(*) FROM likes_vues WHERE likes_vues.ID_article = Articles.ID_article AND likes_vues.type = 'like') AS nbr_likes,
+    (SELECT COUNT(*) FROM likes_vues WHERE likes_vues.ID_article = Articles.ID_article AND likes_vues.type = 'vue') AS nbr_vues,
+    (SELECT COUNT(*) FROM Commentaires WHERE Commentaires.id_article = Articles.ID_article) AS nbr_commentaires
+FROM 
+    Articles
+JOIN 
+    Auteurs ON Articles.ID_auteur = Auteurs.ID_auteur
+WHERE 
+    Auteurs.ID_auteur = 3;
+
+
+
+    SELECT 
+    a.ID_auteur,
+    a.Nom_auteur,
+    COUNT(c.ID_commentaire) AS total_commentaires,
+    SUM(a.Likes) AS total_likes,
+    SUM(a.Vues) AS total_vues
+FROM 
+    Articles a
+LEFT JOIN 
+    Commentaires c ON a.ID_article = c.ID_article
+WHERE 
+    a.ID_auteur = ? -- Remplacez "?" par l'ID de l'auteur ciblé
+GROUP BY 
+    a.ID_auteur, a.Nom_auteur;
+
+
+
+
+ 

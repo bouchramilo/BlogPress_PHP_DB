@@ -148,6 +148,44 @@ if (!$resultAfficher) {
 
 $articles = $resultAfficher->fetch_all(MYSQLI_ASSOC);
 
+
+
+
+
+// afficahge analytics afficahge analytics afficahge analytics afficahge analytics afficahge analytics afficahge analytics afficahge analytics afficahge analytics 
+
+
+// Préparation de la requête
+$sql_afficher_total = "SELECT 
+    a.ID_auteur,
+    CONCAT(a.Nom_auteur, ' ', a.Prénom_auteur) AS Nom_complet,
+    COUNT(DISTINCT art.ID_article) AS total_articles,
+    COUNT(DISTINCT c.ID_Comment) AS total_commentaires,
+    SUM(CASE WHEN lv.type = 'like' THEN lv.nbr_L_V ELSE 0 END) AS total_likes,
+    SUM(CASE WHEN lv.type = 'vue' THEN lv.nbr_L_V ELSE 0 END) AS total_vues
+FROM 
+    Auteurs a
+LEFT JOIN 
+    Articles art ON a.ID_auteur = art.ID_auteur
+LEFT JOIN 
+    Commentaires c ON art.ID_article = c.id_article
+LEFT JOIN 
+    likes_vues lv ON art.ID_article = lv.ID_article
+WHERE 
+    a.ID_auteur = ?
+GROUP BY 
+    a.ID_auteur, Nom_complet";
+
+$stmt_total = $conn->prepare($sql_afficher_total);
+$stmt_total->bind_param("i", $id_auteur); // Lier l'ID de l'article comme entier
+$stmt_total->execute();
+$resultat_total = $stmt_total->get_result();
+$analytics = $resultat_total->fetch_assoc(); // Récupération des données de l'article
+$stmt_total->close();
+
+
+
+
 ?>
 
 <!-- READ MORE ART    READ MORE ART    READ MORE ART    READ MORE ART    READ MORE ART    READ MORE ART    READ MORE ART    READ MORE ART    READ MORE ART   -->
@@ -255,10 +293,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['read_more_atr'])) {
     </div>
 
     <main class="flex-grow w-full flex flex-col items-center gap-2">
-        <section class="h-28 bg-[url('images/bg2.jpg')] bg-cover w-full flex justify-center items-center ">
-            <h1 class="text-3xl ">Vos Articles</h1>
+        <section class="h-32 bg-purple-500 bg-[url('images/bg2.jpg')] bg-cover w-full grid grid-cols-4 max-sm:grid-cols-2 text-sm gap-2 px-2 justify-start items-center ">
+            <div class="w-max h-full bg-black flex justify-normal items-center lg:ml-32 max-sm:ml-0">
+                <h1 class="lg:text-[60px] max-lg:text-[60px] max-sm:text-[40px] text-center font-bold tracking-[15px] max-sm:tracking-[0px] px-2">Dashboard</h1>
+            </div>
 
-
+        </section>
+        <section class="h-max w-full grid grid-cols-4 max-sm:grid-cols-2 text-sm gap-2 px-2 justify-evenly items-center ">
+            <div class="w-full h-3/4 border-2 rounded-sm border-purple-800 flex flex-col gap-2 justify-center items-center max-sm:h-full max-sm:w-full max-sm:flex-row px-0 py-2 ">
+                <img src="images/icones/total.png" alt="" class="w-1/3 h-1/2">
+                <p class="w-full h-1/2 text-center flex items-center justify-center">
+                    <?php echo htmlspecialchars($analytics['total_articles']);  ?> articles
+                </p>
+            </div>
+            <div class="w-full h-3/4 border-2 rounded-sm border-purple-800 flex flex-col gap-2 justify-center items-center max-sm:h-full max-sm:w-full max-sm:flex-row px-0 py-2 ">
+                <img src="images/icones/eye.png" alt="" class="w-1/3 h-1/2">
+                <p class="w-full 1/2ll text-center flex items-center justify-center">
+                    <?php echo htmlspecialchars($analytics['total_vues']);  ?> vues
+                </p>
+            </div>
+            <div class="w-full h-3/4 border-2 rounded-sm border-purple-800 flex flex-col gap-2 justify-center items-center max-sm:h-full max-sm:w-full max-sm:flex-row px-0 py-2 ">
+                <img src="images/icones/like1.png" alt="" class="w-1/3 h-1/2">
+                <p class="w-full h-1/2 text-center flex items-center justify-center">
+                    <?php echo htmlspecialchars($analytics['total_likes']);  ?> likes
+                </p>
+            </div>
+            <div class="w-full h-3/4 border-2 rounded-sm border-purple-800 flex flex-col gap-2 justify-center items-center max-sm:h-full max-sm:w-full max-sm:flex-row px-0 py-2 ">
+                <img src="images/icones/message.png" alt="" class="w-1/3 h-1/2">
+                <p class="w-full h-fu1/2ext-center flex items-center justify-center">
+                    <?php echo htmlspecialchars($analytics['total_commentaires']);  ?> comments
+                </p>
+            </div>
         </section>
 
         <section class="flex flex-col items-center gap-4 w-[85%] max-sm:w-full max-sm:text-xs h-max">
@@ -394,10 +459,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['read_more_atr'])) {
     <!-- footer -->
     <?php include('footer.php'); ?>
 
+
+
+    <script>
+        // Récupérer le bouton et le formulaire
+        const updateform = document.querySelectorAll('.updateform');
+        const formContainerModifier = document.getElementById('formContainerModifier');
+
+        // Afficher ou masquer le formulaire
+        updateform.forEach((form) => {
+            form.addEventListener('click', () => {
+                formContainerModifier.classList.toggle('hidden');
+            });
+        });
+    </script>
+
 </body>
 
 <script src="js/menu_theme.js"></script>
-<script src="js/update_article.js"></script>
+<!-- <script src="js/update_article.js"></script> -->
 <script src="js/add_article.js"></script>
 
 </html>

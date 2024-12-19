@@ -63,8 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['read_more_v'])) {
 
     <main class="h-max w-full flex flex-col justify-center items-center gap-2">
         <section class="h-96 bg-[url('images/bg2.jpg')] bg-cover w-full flex justify-center items-center">
-            <h1 class="lg:text-[60px] max-lg:text-[60px] max-sm:text-[40px] text-center font-bold"
-                style="text-shadow: 0 0 10px purple, 0 0 10px purple, 0 0 20px purple;">Tech News & Blogs</h1>
+            <h1 class="lg:text-[60px] max-lg:text-[60px] max-sm:text-[40px] text-center font-bold">Tech News & Blogs</h1>
         </section>
 
         <section class="flex flex-col items-center gap-4 w-[85%] h-max">

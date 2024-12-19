@@ -253,7 +253,7 @@ if (isset($_POST['add_like'])) {
 
                 <div class="flex justify-center h-12">
                     <button name="add_comment"
-                        class="bg-[#d025a0] border-2 rounded-sm w-44 h-10 font-sans hover:bg-[#830c61] hover:text-white">
+                        class="bg-purple-500 border-2 rounded-sm w-44 h-10 font-sans hover:bg-purple-800 hover:text-white">
                         Envoyer
                     </button>
                 </div>
@@ -262,9 +262,8 @@ if (isset($_POST['add_like'])) {
     </div>
 
     <main class="h-max w-full flex flex-col justify-center items-center gap-10">
-        <section class="h-56 bg-[url('images/bg3.jpg')] bg-cover w-full flex justify-center items-center ">
-            <h1 class="lg:text-[60px] max-lg:text-[60px] max-sm:text-[40px] text-center font-bold"
-                style="text-shadow: 0 0 10px #830c61, 0 0 10px #830c61, 0 0 20px #830c61;"><?php echo htmlspecialchars($row_article['Titre']); ?></h1>
+        <section class="h-56 bg-[url('images/bg2.jpg')] bg-cover w-full flex justify-center items-center ">
+            <h1 class="lg:text-[60px] max-lg:text-[60px] max-sm:text-[40px] text-center font-bold" ><?php echo htmlspecialchars($row_article['Titre']); ?></h1>
         </section>
 
         <section class="flex flex-row max-sm:flex-col gap-4 w-[95%] h-max">
@@ -274,7 +273,7 @@ if (isset($_POST['add_like'])) {
                 </p>
             </div>
             <div class="flex flex-col gap-2 items-center w-4/12 max-sm:w-full h-max py-4 bg-[#1d1d1d]">
-                <div class="w-[95%] border-2 border-[#830c62] h-max flex flex-col gap-2 p-2">
+                <div class="w-[95%] border-2 border-purple-500 h-max flex flex-col gap-2 p-2">
                     <p class="text-xl max-sm:text-base">Auteur : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['Nom_auteur']) . ' ' . htmlspecialchars($row_article['Prénom_auteur']); ?></span></p>
                     <p class="text-xl max-sm:text-base">Catérogie : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['Categorie']); ?></span></p>
                     <p class="text-xl max-sm:text-base">Nombre de 'likes' : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['nbr_likes']); ?></span></p>
@@ -282,18 +281,18 @@ if (isset($_POST['add_like'])) {
                     <p class="text-xl max-sm:text-base">Nombre de commentaires : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['nbr_commentaires']); ?></span></p>
                 </div>
                 <div class="w-[95%] h-max flex flex-row gap-2 p-2">
-                    <form action="" method="POST">
+                    <form action="" method="POST" class="w-1/2">
                         <button name="add_like"
-                            class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-40 h-9 font-sans hover:bg-[#830c61] hover:text-white">
+                            class="max-sm:text-sm bg-purple-500 border-2 rounded-sm w-full h-9 font-sans hover:bg-purple-800 hover:text-white">
                             like &#10084;
                         </button>
                     </form>
-                    <button id="showFormButton" class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-40 h-9 font-sans hover:bg-[#830c61]
+                    <button id="showFormButton" class="max-sm:text-sm bg-purple-500 border-2 rounded-sm w-1/2 h-9 font-sans hover:bg-purple-800
                         hover:text-white">
                         commenter
                     </button>
                 </div>
-                <div class="w-[95%] border-2 border-[#830c62] h-max flex flex-col gap-2 p-2">
+                <div class="w-[95%] border-2 border-purple-500 h-max flex flex-col gap-2 p-2">
 
                     <?php if (!empty($all_commentaires) && is_array($all_commentaires)): ?>
                         <?php foreach ($all_commentaires as $comment): ?>

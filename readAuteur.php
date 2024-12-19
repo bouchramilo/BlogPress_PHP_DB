@@ -185,6 +185,36 @@ if (isset($_POST['delete_art'])) {
 ?>
 
 
+<!-- DELETE comment ================================================================================ -->
+<?php
+
+if (isset($_POST['delete_comment'])) {
+    if (isset($_POST['id_commentaire'])) {
+        $id_comment = mysqli_real_escape_string($conn, $_POST['id_commentaire']);
+        if (!is_numeric($id_comment)) {
+            die("ID commentaire invalide !");
+        }
+    } 
+    
+    $stmt = $conn->prepare("DELETE FROM Commentaires WHERE ID_Comment = ?");
+    if (!$stmt) {
+        die("Erreur de préparation de la requête : " . $conn->error);
+    }
+
+    $stmt->bind_param("i", $id_comment);
+
+    if (!$stmt->execute()) {
+        die("Erreur lors de la suppression : " . $stmt->error);
+    }
+
+    $stmt->close();
+
+    header("Location: readAuteur.php");
+    exit;
+}
+?>
+
+
 <!-- ======================================================================================= -->
 <!-- code html  code html  code html  code html  code html  code html  code html  code html  -->
 
@@ -230,7 +260,7 @@ if (isset($_POST['delete_art'])) {
                 <div class="text-red-500 text-xs"><?php echo  $erreur_tab_Modif_art['contenu']; ?></div>
 
 
-                <div class="flex justify-center h-12">
+                <div class="flex justify-center h-12 gap-2">
                     <button name="annuler_modifier_article"
                         class="bg-purple-500 border-2 rounded-sm w-44 h-10 font-sans hover:bg-purple-800 hover:text-white">
                         ignore
@@ -248,9 +278,8 @@ if (isset($_POST['delete_art'])) {
     </div>
 
     <main class="h-max w-full flex flex-col justify-center items-center gap-6">
-        <section class="h-56 bg-purple-900 bg-[url('images/bg.jpg')] bg-cover w-full flex justify-center items-center ">
-            <h1 class="lg:text-[60px] max-lg:text-[60px] max-sm:text-[40px] text-center font-bold"
-                style="text-shadow: 0 0 10px #830c61, 0 0 10px #830c61, 0 0 20px #830c61;"><?php echo htmlspecialchars($row_article['Titre']); ?></h1>
+        <section class="h-56 bg-purple-500 bg-[url('images/bg.jpg')] bg-cover w-full flex justify-center items-center ">
+            <h1 class="lg:text-[60px] max-lg:text-[60px] max-sm:text-[40px] text-center font-bold"><?php echo htmlspecialchars($row_article['Titre']); ?></h1>
         </section>
 
         <section class="flex flex-row max-sm:flex-col gap-4 w-[95%] h-max">
@@ -260,7 +289,7 @@ if (isset($_POST['delete_art'])) {
                 </p>
             </div>
             <div class="flex flex-col gap-2 items-center w-4/12 max-sm:w-full h-max py-4 bg-[#1d1d1d]">
-                <div class="w-[95%] border-2 border-[#830c62] h-max flex flex-col gap-2 p-2">
+                <div class="w-[95%] border-2 border-purple-500 h-max flex flex-col gap-2 p-2">
                     <p class="text-xl max-sm:text-base">Auteur : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['Nom_auteur']) . ' ' . htmlspecialchars($row_article['Prénom_auteur']); ?></span></p>
                     <p class="text-xl max-sm:text-base">Catérogie : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['Categorie']); ?></span></p>
                     <p class="text-xl max-sm:text-base">Nombre de 'likes' : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['nbr_likes']); ?></span></p>
@@ -268,29 +297,36 @@ if (isset($_POST['delete_art'])) {
                     <p class="text-xl max-sm:text-base">Nombre de commentaires : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['nbr_commentaires']); ?></span></p>
                 </div>
                 <div class="w-[95%] h-max flex flex-row gap-2 p-2">
-                    <form action="" method="POST">
+                    <form action="" method="POST" class="w-1/2">
                         <!-- auteur.php?id_auteur=<?php echo htmlspecialchars($row_article['ID_auteur']); ?> -->
                         <button name="delete_art"
-                            class="max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-40 h-9 font-sans hover:bg-[#830c61] hover:text-white">
+                            class="max-sm:text-sm bg-purple-500 border-2 rounded-sm w-full h-9 font-sans hover:bg-purple-800 hover:text-white">
                             DELETE
                         </button>
                     </form>
-                    <button id="showFormButton" class="updateform max-sm:text-sm bg-[#d025a0] border-2 rounded-sm w-40 h-9 font-sans hover:bg-[#830c61]
+                    <button id="showFormButton" class="updateform max-sm:text-sm bg-purple-500 border-2 rounded-sm w-1/2 h-9 font-sans hover:bg-purple-800
                         hover:text-white">
                         UPDATE
                     </button>
                 </div>
-                <div class="w-[95%] border-2 border-[#830c62] h-max flex flex-col gap-2 p-2">
+                <div class="w-[95%] border-2 border-purple-500 h-max flex flex-col gap-2 p-2">
 
                     <?php if (!empty($all_commentaires) && is_array($all_commentaires)): ?>
                         <?php foreach ($all_commentaires as $comment): ?>
-                            <div class="flex flex-col gap-2">
-                                <div class="flex flex-row gap-2 items-center">
-                                    <img src="images/icones/comment.png" alt="comment" class="w-8">
-                                    <p class="text-lg max-sm:text-base"><span class="text-lg max-sm:text-base"><?php echo htmlspecialchars($comment['Nom_visiteur']); ?></span></p>
-                                    <p class="text-sm max-sm:text-xs text-gray-500"><?php echo htmlspecialchars($comment['date_comment']); ?></p>
+                            <div class="flex flex-col gap-2 border-b-2 border-gray-500 shadow-md">
+                                <div class="flex flex-row justify-between gap-2 items-center">
+                                    <div class="flex flex-row gap-2 items-center">
+                                        <img src="images/icones/comment.png" alt="comment" class="w-6">
+                                        <p class="text-lg max-sm:text-base"><span class="text-lg max-sm:text-base"><?php echo htmlspecialchars($comment['Nom_visiteur']); ?></span></p>
+                                        <p class="text-sm max-sm:text-xs text-gray-500"><?php echo htmlspecialchars($comment['date_comment']); ?></p>
+
+                                    </div>
+                                    <form action="" method="POST">
+                                        <input type="hidden" name="id_commentaire" value="<?php echo htmlspecialchars($comment['ID_Comment']); ?>">
+                                        <button name="delete_comment" class="w-8">&#10005;</button>
+                                    </form>
                                 </div>
-                                <div class="pl-10 max-sm:text-sm">
+                                <div class="pl-4 flex flex-row justify-between max-sm:text-sm">
                                     <?php echo htmlspecialchars($comment['contenu_comment']); ?>
                                 </div>
                             </div>
@@ -307,9 +343,31 @@ if (isset($_POST['delete_art'])) {
 
     <!-- footer  -->
     <?php include 'footer.php' ?>
+
+
+    <script>
+        // Récupérer le bouton et le formulaire
+        const updateform = document.querySelectorAll('.updateform');
+        const formContainerModifier = document.getElementById('formContainerModifier');
+        const title = document.getElementById("titreM");
+        const categorie = document.getElementById("categorieM");
+        const contenu = document.getElementById("ContenuM");
+
+        // Afficher ou masquer le formulaire
+        updateform.forEach((form) => {
+            form.addEventListener('click', () => {
+                title.value = "<?php echo htmlspecialchars($row_article['Titre']); ?>";
+                categorie.value = "<?php echo htmlspecialchars($row_article['Categorie']); ?>";
+                contenu.value = "<?php echo htmlspecialchars($row_article['Contenu_article']); ?>";
+                formContainerModifier.classList.toggle('hidden');
+            });
+        });
+    </script>
+
+
 </body>
 <script src="js/menu_theme.js"></script>
 <script src="js/commentFormC.js"></script>
-<script src="js/update_article.js"></script>
+<!-- <script src="js/update_article.js"></script> -->
 
 </html>
