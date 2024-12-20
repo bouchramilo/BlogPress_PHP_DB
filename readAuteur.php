@@ -3,15 +3,19 @@ session_start();
 include('connect_DB.php');
 ?>
 
+<?php
+include "update_art.php";
+include "delete_art_comment.php";
+?>
+
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- // pour l'affichage des articles aux visiteurs : ========================================================================================================= -->
 <?php
 
-// Vérifier si un article est sélectionné via POST ou une session
 if (isset($_POST['id_article']) || isset($_SESSION['id_article'])) {
     if (isset($_POST['id_article'])) {
         $id_article = $_POST['id_article'];
-        $_SESSION['id_article'] = $id_article; // Stocker l'ID dans la session
+        $_SESSION['id_article'] = $id_article;
     } else {
         $id_article = $_SESSION['id_article'];
     }
@@ -36,10 +40,10 @@ if (isset($_POST['id_article']) || isset($_SESSION['id_article'])) {
             Articles.ID_article = ? ;";
 
     $stmt = $conn->prepare($sql_Art);
-    $stmt->bind_param("i", $id_article); // Lier l'ID de l'article comme entier
+    $stmt->bind_param("i", $id_article);
     $stmt->execute();
     $resultat = $stmt->get_result();
-    $row_article = $resultat->fetch_assoc(); // Récupération des données de l'article
+    $row_article = $resultat->fetch_assoc();
     $stmt->close();
 
 
@@ -57,166 +61,18 @@ if (isset($_POST['id_article']) || isset($_SESSION['id_article'])) {
                     WHERE 
                         id_article = ?";
     $stmt = $conn->prepare($sql_cmt_Art);
-    $stmt->bind_param("i", $id_article); // Lier l'ID de l'article comme entier
+    $stmt->bind_param("i", $id_article);
     $stmt->execute();
     $resultat_cmt = $stmt->get_result();
-    $all_commentaires = $resultat_cmt->fetch_all(MYSQLI_ASSOC); // Récupération des commentaires
+    $all_commentaires = $resultat_cmt->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 }
 
 ?>
 
 
-<!-- Modifier Articles : ==================================================================================================== -->
-<?php
-
-$erreur_tab_Modif_art = [
-    'titre' => '',
-    'contenu' => '',
-    'categorie' => ''
-];
-
-if (isset($_POST['modifier_article'])) {
-    // Validation du titre
-    if (empty($_POST['titreM'])) {
-        $erreur_tab_Modif_art['titre'] = 'Le titre est vide!!!';
-    } else {
-        $titreM = $_POST['titreM'];
-        if (!preg_match('/^[A-Za-zÀ-ÿ0-9\s-]{2,}$/u', $titreM)) {
-            $erreur_tab_Modif_art['titre'] = 'le titre est invalide !!!!';
-        }
-    }
-
-    // Validation du catégorie
-    if (empty($_POST['categorieM'])) {
-        $erreur_tab_Modif_art['categorie'] = 'Le categirie est vide!!!';
-    } else {
-        $categorie = $_POST['categorieM'];
-        if (!preg_match('/^[A-Za-zÀ-ÿ\s-]{2,}$/u', $categorie)) {
-            $erreur_tab_Modif_art['categorie'] = 'Le catégorie est invalide !!!!';
-        }
-    }
-
-    // Validation du contenue
-    if (empty($_POST['contenuM'])) {
-        $erreur_tab_Modif_art['contenu'] = 'Le contenu est vide!!!';
-    } else {
-        $contenu = $_POST['contenuM'];
-        if (!preg_match('/^[\w\s.,!?\'"À-ÿ-]{2,}$/u', $contenu)) {
-            $erreur_tab_Modif_art['contenu'] = 'le contenu est invalide !!!!';
-        }
-    }
-
-
-    // Récupération de l'ID article
-    if (isset($_POST['id_article'])) {
-        $id_article = $_POST['id_article'];
-        $_SESSION['id_article'] = $id_article;
-    } else {
-        $id_article = $_SESSION['id_article'] ?? null;
-    }
-
-
-    // set data in BD apres la validation :
-    if (array_filter($erreur_tab_Modif_art)) {
-        echo "Il y a des erreurs dans votre formulaire :";
-        foreach ($erreur_tab_Modif_art as $champ => $messageErreur) {
-            if (!empty($messageErreur)) {
-                echo "<p class='text-red-500'>$messageErreur</p>";
-            }
-        }
-    } else {
-        $titreM = mysqli_real_escape_string($conn, $_POST['titreM']);
-        $contenuM = mysqli_real_escape_string($conn, $_POST['contenuM']);
-        $categorieM = mysqli_real_escape_string($conn, $_POST['categorieM']);
-
-        $stmt = $conn->prepare("UPDATE Articles SET Titre = ?, Contenu_article = ?, Categorie = ? WHERE ID_article = ?");
-        if (!$stmt) {
-            die("Erreur lors de la préparation de la requête : " . $conn->error);
-        }
-
-        $stmt->bind_param("sssi", $titreM, $contenuM, $categorieM, $id_article);
-
-        if (!$stmt->execute()) {
-            die("Erreur lors de la modification : " . $stmt->error);
-        }
-
-        echo "Article modifié avec succès !";
-        header("Location: readAuteur.php");
-    }
-} // end of if (isset($_POST['add_article']))
-
-?>
-
-<!-- DELETE ARTICLE ================================================================================ -->
-<?php
-
-if (isset($_POST['delete_art'])) {
-    if (isset($_POST['id_article'])) {
-        $id_article = mysqli_real_escape_string($conn, $_POST['id_article']);
-        if (!is_numeric($id_article)) {
-            die("ID article invalide !");
-        }
-        $_SESSION['id_article'] = $id_article;
-    } else {
-        $id_article = $_SESSION['id_article'] ?? null;
-        if (empty($id_article) || !is_numeric($id_article)) {
-            die("ID article non spécifié ou invalide !");
-        }
-    }
-
-    // Requête pour supprimer l'article
-    $stmt = $conn->prepare("DELETE FROM Articles WHERE ID_article = ?");
-    if (!$stmt) {
-        die("Erreur de préparation de la requête : " . $conn->error);
-    }
-
-    $stmt->bind_param("i", $id_article);
-
-    if (!$stmt->execute()) {
-        die("Erreur lors de la suppression : " . $stmt->error);
-    }
-
-    $stmt->close();
-
-    header("Location: auteur.php");
-    exit;
-}
-?>
-
-
-<!-- DELETE comment ================================================================================ -->
-<?php
-
-if (isset($_POST['delete_comment'])) {
-    if (isset($_POST['id_commentaire'])) {
-        $id_comment = mysqli_real_escape_string($conn, $_POST['id_commentaire']);
-        if (!is_numeric($id_comment)) {
-            die("ID commentaire invalide !");
-        }
-    } 
-    
-    $stmt = $conn->prepare("DELETE FROM Commentaires WHERE ID_Comment = ?");
-    if (!$stmt) {
-        die("Erreur de préparation de la requête : " . $conn->error);
-    }
-
-    $stmt->bind_param("i", $id_comment);
-
-    if (!$stmt->execute()) {
-        die("Erreur lors de la suppression : " . $stmt->error);
-    }
-
-    $stmt->close();
-
-    header("Location: readAuteur.php");
-    exit;
-}
-?>
-
-
-<!-- ======================================================================================= -->
-<!-- code html  code html  code html  code html  code html  code html  code html  code html  -->
+<!-- =============================================================================================================================== -->
+<!-- code html  code html  code html  code html  code html  code html  code html  code html code html code html code html code html  -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -230,8 +86,9 @@ if (isset($_POST['delete_comment'])) {
 
 <body class="text-white flex flex-col items-center gap-2 bg-black ">
 
-    <!-- header -->
+    <!-- header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header -->
     <?php include 'header.php'; ?>
+    <!-- header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header -->
 
 
     <!-- Formulaire modification caché -->
@@ -248,8 +105,8 @@ if (isset($_POST['delete_comment'])) {
 
 
                 <label for="categorieM" class="block mb-2">Categorie d'article :</label>
-                <input type="categorieM" id="categorieM" class="w-full p-2 mb-4 border-0 rounded-sm bg-black" name="categorieM"
-                    placeholder="Catégorie Modifier">
+                <input type="categorieM" id="categorieM" class="w-full p-2 mb-4 border-0 rounded-sm bg-black"
+                    name="categorieM" placeholder="Catégorie Modifier">
                 <div class="text-red-500 text-xs"><?php echo  $erreur_tab_Modif_art['categorie']; ?></div>
 
 
@@ -278,8 +135,10 @@ if (isset($_POST['delete_comment'])) {
     </div>
 
     <main class="h-max w-full flex flex-col justify-center items-center gap-6">
-        <section class="h-44 bg-purple-500 bg-[url('images/bg2.jpg')] bg-cover w-full flex justify-center items-center ">
-            <h1 class="lg:text-[60px] max-lg:text-[60px] max-sm:text-[40px] text-center font-bold"><?php echo htmlspecialchars($row_article['Titre']); ?></h1>
+        <section
+            class="h-44 bg-purple-500 bg-[url('images/bg2.jpg')] bg-cover w-full flex justify-center items-center ">
+            <h1 class="lg:text-[60px] max-lg:text-[60px] max-sm:text-[40px] text-center font-bold">
+                <?php echo htmlspecialchars($row_article['Titre']); ?></h1>
         </section>
 
         <section class="flex flex-row max-sm:flex-col gap-4 w-[95%] h-max">
@@ -290,15 +149,24 @@ if (isset($_POST['delete_comment'])) {
             </div>
             <div class="flex flex-col gap-2 items-center w-4/12 max-sm:w-full h-max py-4 bg-[#1d1d1d]">
                 <div class="w-[95%] border-2 border-purple-500 h-max flex flex-col gap-2 p-2">
-                    <p class="text-xl max-sm:text-base">Auteur : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['Nom_auteur']) . ' ' . htmlspecialchars($row_article['Prénom_auteur']); ?></span></p>
-                    <p class="text-xl max-sm:text-base">Catérogie : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['Categorie']); ?></span></p>
-                    <p class="text-xl max-sm:text-base">Nombre de 'likes' : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['nbr_likes']); ?></span></p>
-                    <p class="text-xl max-sm:text-base">Nombre de 'Vue' : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['nbr_vues']); ?></span></p>
-                    <p class="text-xl max-sm:text-base">Nombre de commentaires : <span class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['nbr_commentaires']); ?></span></p>
+                    <p class="text-xl max-sm:text-base">Auteur : <span
+                            class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['Nom_auteur']) . ' ' . htmlspecialchars($row_article['Prénom_auteur']); ?></span>
+                    </p>
+                    <p class="text-xl max-sm:text-base">Catérogie : <span
+                            class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['Categorie']); ?></span>
+                    </p>
+                    <p class="text-xl max-sm:text-base">Nombre de 'likes' : <span
+                            class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['nbr_likes']); ?></span>
+                    </p>
+                    <p class="text-xl max-sm:text-base">Nombre de 'Vue' : <span
+                            class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['nbr_vues']); ?></span>
+                    </p>
+                    <p class="text-xl max-sm:text-base">Nombre de commentaires : <span
+                            class="text-lg max-sm:text-base max-sm:text-sm"><?php echo htmlspecialchars($row_article['nbr_commentaires']); ?></span>
+                    </p>
                 </div>
                 <div class="w-[95%] h-max flex flex-row gap-2 p-2">
                     <form action="" method="POST" class="w-1/2">
-                        <!-- auteur.php?id_auteur=<?php echo htmlspecialchars($row_article['ID_auteur']); ?> -->
                         <button name="delete_art"
                             class="max-sm:text-sm bg-purple-500 border-2 rounded-sm w-full h-9 font-sans hover:bg-purple-800 hover:text-white">
                             DELETE
@@ -317,12 +185,16 @@ if (isset($_POST['delete_comment'])) {
                                 <div class="flex flex-row justify-between gap-2 items-center">
                                     <div class="flex flex-row gap-2 items-center">
                                         <img src="images/icones/comment.png" alt="comment" class="w-6">
-                                        <p class="text-lg max-sm:text-base"><span class="text-lg max-sm:text-base"><?php echo htmlspecialchars($comment['Nom_visiteur']); ?></span></p>
-                                        <p class="text-sm max-sm:text-xs text-gray-500"><?php echo htmlspecialchars($comment['date_comment']); ?></p>
+                                        <p class="text-lg max-sm:text-base"><span
+                                                class="text-lg max-sm:text-base"><?php echo htmlspecialchars($comment['Nom_visiteur']); ?></span>
+                                        </p>
+                                        <p class="text-sm max-sm:text-xs text-gray-500">
+                                            <?php echo htmlspecialchars($comment['date_comment']); ?></p>
 
                                     </div>
                                     <form action="" method="POST">
-                                        <input type="hidden" name="id_commentaire" value="<?php echo htmlspecialchars($comment['ID_Comment']); ?>">
+                                        <input type="hidden" name="id_commentaire"
+                                            value="<?php echo htmlspecialchars($comment['ID_Comment']); ?>">
                                         <button name="delete_comment" class="w-8">&#10005;</button>
                                     </form>
                                 </div>
@@ -341,19 +213,19 @@ if (isset($_POST['delete_comment'])) {
         </section>
     </main>
 
-    <!-- footer  -->
+    <!-- footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  -->
     <?php include 'footer.php' ?>
+    <!-- footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  -->
 
-
+    <!-- pour l'affichage du form de modification des articles : -->
     <script>
-        // Récupérer le bouton et le formulaire
         const updateform = document.querySelectorAll('.updateform');
         const formContainerModifier = document.getElementById('formContainerModifier');
         const title = document.getElementById("titreM");
         const categorie = document.getElementById("categorieM");
         const contenu = document.getElementById("ContenuM");
 
-        // Afficher ou masquer le formulaire
+        // Afficher ou masquer le form de update 
         updateform.forEach((form) => {
             form.addEventListener('click', () => {
                 title.value = "<?php echo htmlspecialchars($row_article['Titre']); ?>";
@@ -368,6 +240,5 @@ if (isset($_POST['delete_comment'])) {
 </body>
 <script src="js/menu_theme.js"></script>
 <script src="js/commentFormC.js"></script>
-<!-- <script src="js/update_article.js"></script> -->
 
 </html>

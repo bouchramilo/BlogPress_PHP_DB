@@ -56,28 +56,156 @@ while ($row = $resultat_details->fetch_assoc()) {
 $stmt_details->close();
 ?>
 
+<!-- ---------------------------------------------------------------------------------------------------------------------------------- -->
+
+<?php
+// session_start();
+// include('connect_DB.php'); // Connexion à la base de données
+
+$id_auteur = $_SESSION['ID_auteur']; // Supposons que l'ID de l'auteur est stocké en session
+
+$sql = "
+    SELECT
+    DATE_FORMAT(lv.date_L_V, '%d-%m-%Y') AS date_like_vue,
+    SUM(CASE WHEN lv.type = 'vue' THEN lv.nbr_L_V ELSE 0 END) AS total_vues,
+    SUM(CASE WHEN lv.type = 'like' THEN lv.nbr_L_V ELSE 0 END) AS total_likes,
+    DATE_FORMAT(c.date_comment, '%d-%m-%Y') AS date_commentaire,
+    COUNT(c.ID_Comment) AS total_commentaires
+FROM Articles a
+LEFT JOIN likes_vues lv ON a.ID_article = lv.ID_article
+LEFT JOIN Commentaires c ON a.ID_article = c.id_article
+WHERE a.ID_auteur = ?
+GROUP BY DATE_FORMAT(lv.date_L_V, '%d-%m-%Y'), DATE_FORMAT(c.date_comment, '%d-%m-%Y')
+
+";
+
+// Préparation et exécution de la requête
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $id_auteur);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$data_articles = [];
+$data_vues = [];
+$data_likes = [];
+$data_comments = [];
+
+// Récupération des données
+while ($row = $result->fetch_assoc()) {
+    $data_articles[] = $row['date_creation'];
+    $data_vues[] = (int)$row['total_vues'];
+    $data_likes[] = (int)$row['total_likes'];
+    $data_comments[] = (int)$row['total_commentaires'];
+}
+
+// Fermer la connexion
+$stmt->close();
+$conn->close();
+?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistiques des Articles</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+    </style>
 </head>
 
-<body class="p-4">
-    <h2 class="text-xl font-bold mb-4">Statistiques des Articles</h2>
+<body>
+    <h2>Statistiques des Articles</h2>
+    <p>Évolution des vues, likes et commentaires dans le temps</p>
 
-    <!-- Graphiques -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div><canvas id="vuesGraph"></canvas></div>
-        <div><canvas id="likesGraph"></canvas></div>
-        <div><canvas id="commentsGraph"></canvas></div>
+    <div>
+        <canvas id="chart"></canvas>
     </div>
 
     <script>
+        // Récupérer les données PHP en JavaScript
+        const labels = <?php echo json_encode($data_articles); ?>;
+        const dataViews = <?php echo json_encode($data_vues); ?>;
+        const dataLikes = <?php echo json_encode($data_likes); ?>;
+        const dataComments = <?php echo json_encode($data_comments); ?>;
+
+        // Création du graphique avec Chart.js
+        new Chart("chart", {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "Vues",
+                        data: dataViews,
+                        borderColor: "red",
+                        fill: false
+                    },
+                    {
+                        label: "Likes",
+                        data: dataLikes,
+                        borderColor: "green",
+                        fill: false
+                    },
+                    {
+                        label: "Commentaires",
+                        data: dataComments,
+                        borderColor: "blue",
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "top"
+                    },
+                    title: {
+                        display: true,
+                        text: "Évolution des Statistiques des Articles"
+                    }
+                },
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Dates"
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Nombre"
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
+
+    <!-- Graphiques -->
+    <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div><canvas id="vuesGraph"></canvas></div>
+        <div><canvas id="likesGraph"></canvas></div>
+        <div><canvas id="commentsGraph"></canvas></div>
+    </div> -->
+
+    <!-- <script>
         // Données PHP converties en JavaScript
         const labels = <?php echo json_encode($data_articles); ?>;
         const vuesData = <?php echo json_encode($data_vues); ?>;
@@ -139,8 +267,5 @@ $stmt_details->close();
             colors.slice(0, labels.length),
             'rgba(255, 159, 64, 1)'
         );
-    </script>
+    </script> -->
 
-</body>
-
-</html>

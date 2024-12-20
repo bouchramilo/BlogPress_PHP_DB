@@ -1,11 +1,14 @@
 <?php
 
-include('connect_DB.php'); // Connexion à la base de données
+include('connect_DB.php');
 session_start();
 
-$notFound = ''; // Message d'erreur pour l'utilisateur non trouvé
+?>
+<!-- connexion  connexion  connexion  connexion  connexion  connexion  connexion  connexion  connexion  connexion  connexion  connexion  connexion  connexion  connexion  -->
+<?php
+$notFound = '';
 
-// Tableau des erreurs
+// Tableau des erreurs : 
 $erreur_tab_conn = [
     'email' => '',
     'password' => ''
@@ -36,34 +39,30 @@ if (isset($_POST['signin'])) {
         $erreur_tab_conn['password'] = 'Le mot de passe doit contenir au moins 8 caractères, avec des lettres et des chiffres.';
     }
 
-    // Si aucune erreur dans le formulaire
+    // test Si aucune erreur dans le formulaire
     if (empty($erreur_tab_conn['email']) && empty($erreur_tab_conn['password'])) {
-        // Requête préparée pour éviter les injections SQL
         $stmt = $conn->prepare("SELECT ID_auteur, Password, Nom_auteur FROM Auteurs WHERE Email_auteur = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            // Utilisateur trouvé
             $row = $result->fetch_assoc();
-            $hashed_password = $row['Password']; // Mot de passe haché récupéré
+            $hashed_password = $row['Password'];
 
             // Vérification du mot de passe
             if (password_verify($password, $hashed_password)) {
-                $id_auteur = $row['ID_auteur']; // Récupération de l'ID de l'auteur
+                $id_auteur = $row['ID_auteur'];
 
                 $_SESSION['id_auteur'] = $id_auteur;
 
-                echo  $_SESSION['id_auteur'];
+                // echo  $_SESSION['id_auteur'];
 
                 $_SESSION['Nom_auteur'] = $row['Nom_auteur'];
-                echo $_SESSION['Nom_auteur'];
+                // echo $_SESSION['Nom_auteur'];
 
-                // Redirection vers la page 'auteur.php' avec l'ID dans l'URL
                 header("Location: auteur.php");
-                // header("Location: auteur.php?id_auteur=$id_auteur");
-                exit(); // Terminer le script après la redirection
+                exit();
             } else {
                 $notFound = "Mot de passe incorrect.";
             }
@@ -77,10 +76,7 @@ if (isset($_POST['signin'])) {
 
 ?>
 
-
-
-
-
+<!-- Code HTML CSS TAILWIND JS PHP pour la page connexion ==========================================================================================================  -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -93,8 +89,9 @@ if (isset($_POST['signin'])) {
 
 <body class="text-white flex flex-col items-center gap-2 bg-black ">
 
-    <!-- header -->
+    <!-- header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header -->
     <?php include('header.php'); ?>
+    <!-- header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  -->
 
     <main class="h-max w-full flex flex-col justify-center items-center gap-2">
 
@@ -131,10 +128,12 @@ if (isset($_POST['signin'])) {
     </main>
 
 
-    <!-- footer -->
+    <!-- footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer -->
     <?php include('footer.php'); ?>
+    <!-- footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  -->
 
 </body>
+
 <script src="js/menu_theme.js"></script>
 
 </html>

@@ -2,6 +2,11 @@
 
 include('connect_DB.php');
 
+?>
+
+<!-- inscription  inscription  inscription  inscription  inscription  inscription  inscription  inscription  inscription  inscription  inscription  inscription -->
+<?php
+
 $erreur_tab = [
     'name' => '',
     'prenom' => '',
@@ -61,16 +66,16 @@ if (isset($_POST['signup'])) {
         $erreur_tab['password2'] = 'Les mots de passe ne correspondent pas.';
     }
 
-    
+
     if (!array_filter($erreur_tab)) {
         $name = mysqli_real_escape_string($conn, $name);
         $prenom = mysqli_real_escape_string($conn, $prenom);
         $email = mysqli_real_escape_string($conn, $email);
-        
+
         // Hachage du mot de passe
         $password_hashed = password_hash($password1, PASSWORD_BCRYPT);
 
-        $sql_inscrire = "INSERT INTO Auteurs (Nom_auteur, Prénom_auteur, Email_auteur, Password) VALUES (?, ?, ?, ?)" ;
+        $sql_inscrire = "INSERT INTO Auteurs (Nom_auteur, Prénom_auteur, Email_auteur, Password) VALUES (?, ?, ?, ?)";
         $statment = $conn->prepare($sql_inscrire);
         if (!$statment) {
             die("Erreur lors de la préparation de la requête : " . $conn->error);
@@ -91,10 +96,7 @@ if (isset($_POST['signup'])) {
 
 ?>
 
-
-
-
-
+<!-- code HTML CSS Tailwind PHP inscription ========================================================================================================================== -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -107,9 +109,9 @@ if (isset($_POST['signup'])) {
 
 <body class="text-white flex flex-col items-center gap-2 bg-black ">
 
-    <!-- header  header  header  header  header  header  header  header  header  header  header  header  header  header -->
+    <!-- header  header  header  header  header  header  header  header  header  header  header  header  header  header header header header header header header header -->
     <?php include('header.php'); ?>
-    <!-- header  header  header  header  header  header  header  header  header  header  header  header  header  header -->
+    <!-- header header header header header header header header  header  header  header  header  header  header  header  header  header  header  header  header  header -->
 
     <main class="h-max w-full flex flex-col justify-center items-center gap-2">
         <section class="h-screen bg-[url('images/bg2.jpg')] bg-cover w-full flex justify-center items-center ">
@@ -120,8 +122,8 @@ if (isset($_POST['signup'])) {
                     <label for="name">Nom : </label>
                     <input type="text" name="nom_auteur" id="nom_auteur" placeholder="Votre nom." value="<?php echo htmlspecialchars($name); ?>"
                         class="h-12 text-white bg-black px-2 border-0 hover:border-2 hover:border-purple-800">
-                        <div class="text-red-500 text-xs"><?php print_r( $erreur_tab['name']); ?></div>
-                    
+                    <div class="text-red-500 text-xs"><?php print_r($erreur_tab['name']); ?></div>
+
 
                     <label for="prenom">Prénom : </label>
                     <input type="text" name="prenom_auteur" id="prenom_auteur" placeholder="Votre prénom." value="<?php echo htmlspecialchars($prenom); ?>"
@@ -156,12 +158,12 @@ if (isset($_POST['signup'])) {
         </section>
     </main>
 
-
-    <!-- footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer -->
+    <!-- footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer footer  footer  footer  footer  footer -->
     <?php include('footer.php'); ?>
-    <!-- footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer -->
+    <!-- footer  footer  footer  footer  footer footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer -->
 
 </body>
+
 <script src="js/menu_theme.js"></script>
 
 </html>

@@ -9,7 +9,7 @@ if (isset($_POST['deconnexion'])) {
     exit();
 }
 
-// Gestion de l'ID de l'auteur
+// extraire ID de l'auteur
 $id_auteur = $_SESSION['id_auteur'] ?? null;
 $nom_auteur = $_SESSION['Nom_auteur'] ?? null;
 if (isset($_POST['id_auteur'])) {
@@ -21,6 +21,8 @@ if (isset($_POST['id_auteur'])) {
     $nom_auteur = $_SESSION['Nom_auteur'];
 }
 ?>
+
+<!-- header selon si un auteur si connecter ou non :  -->
 <header class="bg-[#1d1d1d] w-full h-20 flex justify-center items-center px-12">
     <nav class="flex h-full flex-row justify-between w-full ml-10">
         <!-- Logo -->
@@ -39,9 +41,9 @@ if (isset($_POST['id_auteur'])) {
                     Home
                 </button>
             </a>
-            
+
             <?php if ($id_auteur): ?>
-                <!-- Menu pour utilisateur connecté -->
+                <!-- Menu pour auteur connecté -->
                 <a href="auteur.php" class="w-full lg:w-1/5 h-3/5 lg:mb-0">
                     <button
                         class="border-b-2 border-b-[#1d1d1d] rounded-sm w-full lg:h-full h-8 font-sans text-xl hover:border-b-4 hover:border-purple-500">
@@ -59,7 +61,7 @@ if (isset($_POST['id_auteur'])) {
                     <?php echo htmlspecialchars($nom_auteur); ?>
                 </a>
             <?php else: ?>
-                <!-- Menu pour utilisateur non connecté -->
+                <!-- Menu pour auteur non connecté -->
                 <a href="connexion.php" class="w-full lg:w-1/5 h-3/5 lg:mb-0">
                     <button
                         class="max-sm:text-sm bg-purple-500 border-2 rounded-sm w-full lg:h-full h-8 font-saxl hover:bg-purple-800 hover:text-white">
@@ -75,7 +77,7 @@ if (isset($_POST['id_auteur'])) {
             <?php endif; ?>
         </div>
 
-        <!-- Hamburger Menu -->
+        <!-- Menu pour les screens petites -->
         <div class="lg:hidden justify-end flex w-1/12">
             <button onclick="Menu()" class="flex items-center px-2 py-0 my-4 border h-10 rounded bg-purple-500">
                 <svg class="fill-current h-6 w-6" viewBox="0 0 20 20">

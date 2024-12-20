@@ -229,9 +229,10 @@ if (isset($_POST['add_like'])) {
 
 <body class="text-white flex flex-col items-center gap-2 bg-black ">
 
-    <!-- header -->
+    <!-- header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header -->
     <?php include 'header.php'; ?>
-
+    <!-- header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header  header -->
+    
 
     <!-- Formulaire caché -->
     <div id="formContainer" class="fixed inset-0 bg-white bg-opacity-50 flex justify-center items-center hidden">
@@ -317,8 +318,9 @@ if (isset($_POST['add_like'])) {
         </section>
     </main>
 
-    <!-- footer  -->
+    <!-- footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  -->
     <?php include 'footer.php' ?>
+    <!-- footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  footer  -->
 </body>
 <script src="js/menu_theme.js"></script>
 <script src="js/commentFormC.js"></script>
