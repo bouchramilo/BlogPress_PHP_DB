@@ -204,6 +204,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['read_more_atr'])) {
 }
 ?>
 
+<?php 
+
+include "statistique.php";
+
+?>
 
 
 
@@ -215,6 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['read_more_atr'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>BlogPress - Auteur</title>
 </head>
 
@@ -299,31 +305,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['read_more_atr'])) {
             </div>
 
         </section>
-        <section class="h-max w-full grid grid-cols-4 max-sm:grid-cols-2 text-sm gap-2 px-2 justify-evenly items-center ">
-            <div class="w-full h-3/4 border-2 rounded-sm border-purple-800 flex flex-col gap-2 justify-center items-center max-sm:h-full max-sm:w-full max-sm:flex-row px-0 py-2 ">
-                <img src="images/icones/total.png" alt="" class="w-1/3 h-1/2">
-                <p class="w-full h-1/2 text-center flex items-center justify-center">
-                    <?php echo htmlspecialchars($analytics['total_articles']);  ?> articles
-                </p>
-            </div>
-            <div class="w-full h-3/4 border-2 rounded-sm border-purple-800 flex flex-col gap-2 justify-center items-center max-sm:h-full max-sm:w-full max-sm:flex-row px-0 py-2 ">
-                <img src="images/icones/eye.png" alt="" class="w-1/3 h-1/2">
-                <p class="w-full 1/2ll text-center flex items-center justify-center">
-                    <?php echo htmlspecialchars($analytics['total_vues']);  ?> vues
-                </p>
-            </div>
-            <div class="w-full h-3/4 border-2 rounded-sm border-purple-800 flex flex-col gap-2 justify-center items-center max-sm:h-full max-sm:w-full max-sm:flex-row px-0 py-2 ">
-                <img src="images/icones/like1.png" alt="" class="w-1/3 h-1/2">
-                <p class="w-full h-1/2 text-center flex items-center justify-center">
-                    <?php echo htmlspecialchars($analytics['total_likes']);  ?> likes
-                </p>
-            </div>
-            <div class="w-full h-3/4 border-2 rounded-sm border-purple-800 flex flex-col gap-2 justify-center items-center max-sm:h-full max-sm:w-full max-sm:flex-row px-0 py-2 ">
-                <img src="images/icones/message.png" alt="" class="w-1/3 h-1/2">
-                <p class="w-full h-fu1/2ext-center flex items-center justify-center">
-                    <?php echo htmlspecialchars($analytics['total_commentaires']);  ?> comments
-                </p>
-            </div>
+
+        </section>
+        <section class="flex flex-row items-center gap-6 w-full max-sm:w-full max-sm:text-xs h-max">
+            <hr class="bg-white size-1 w-2/5">
+            <p class="w-1/5 text-center font-bold text-xl max-sm:text-sm">Vos Articles</p>
+            <hr class="bg-white size-1 w-2/5">
         </section>
 
         <section class="flex flex-col items-center gap-4 w-[85%] max-sm:w-full max-sm:text-xs h-max">
@@ -449,9 +436,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['read_more_atr'])) {
 
 
             </div>
+        </section>
+
+        <section class="flex flex-row items-center gap-6 w-full max-sm:w-full max-sm:text-xs h-max">
+            <hr class="bg-white size-1 w-2/5">
+            <p class="w-1/5 text-center font-bold text-xl max-sm:text-sm">Statistiques</p>
+            <hr class="bg-white size-1 w-2/5">
+        </section>
+
+        <section class="h-max w-[85%] grid grid-cols-4 max-sm:grid-cols-2 text-sm gap-2 px-2 justify-evenly items-center ">
+            <div class="w-full h-3/4 border-2 rounded-sm border-purple-800 flex flex-col gap-2 justify-center items-center max-sm:h-full max-sm:w-full max-sm:flex-row px-0 py-2 ">
+                <img src="images/icones/total.png" alt="" class="w-1/3 h-1/2">
+                <p class="w-full h-1/2 text-center flex items-center justify-center">
+                    <?php echo htmlspecialchars($analytics['total_articles']);  ?> articles
+                </p>
+            </div>
+            <div class="w-full h-3/4 border-2 rounded-sm border-purple-800 flex flex-col gap-2 justify-center items-center max-sm:h-full max-sm:w-full max-sm:flex-row px-0 py-2 ">
+                <img src="images/icones/eye.png" alt="" class="w-1/3 h-1/2">
+                <p class="w-full 1/2ll text-center flex items-center justify-center">
+                    <?php echo htmlspecialchars($analytics['total_vues']);  ?> vues
+                </p>
+            </div>
+            <div class="w-full h-3/4 border-2 rounded-sm border-purple-800 flex flex-col gap-2 justify-center items-center max-sm:h-full max-sm:w-full max-sm:flex-row px-0 py-2 ">
+                <img src="images/icones/like1.png" alt="" class="w-1/3 h-1/2">
+                <p class="w-full h-1/2 text-center flex items-center justify-center">
+                    <?php echo htmlspecialchars($analytics['total_likes']);  ?> likes
+                </p>
+            </div>
+            <div class="w-full h-3/4 border-2 rounded-sm border-purple-800 flex flex-col gap-2 justify-center items-center max-sm:h-full max-sm:w-full max-sm:flex-row px-0 py-2 ">
+                <img src="images/icones/message.png" alt="" class="w-1/3 h-1/2">
+                <p class="w-full h-fu1/2ext-center flex items-center justify-center">
+                    <?php echo htmlspecialchars($analytics['total_commentaires']);  ?> comments
+                </p>
+            </div>
+        </section>
 
 
+        
 
+        <section class="flex flex-col items-center gap-4 w-[95%] max-sm:w-full max-sm:text-xs h-max">
+            <!-- Graphiques -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-20">
+                <div class=""><canvas id="vuesGraph"></canvas></div>
+                <div class=""><canvas id="likesGraph"></canvas></div>
+                <div class=""><canvas id="commentsGraph"></canvas></div>
+            </div>
         </section>
     </main>
 
@@ -459,6 +488,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['read_more_atr'])) {
     <!-- footer -->
     <?php include('footer.php'); ?>
 
+
+
+    <script>
+        // Données PHP converties en JavaScript
+        const labels = <?php echo json_encode($data_articles); ?>;
+        const vuesData = <?php echo json_encode($data_vues); ?>;
+        const likesData = <?php echo json_encode($data_likes); ?>;
+        const commentsData = <?php echo json_encode($data_comments); ?>;
+
+        // Tableau de couleurs spécifiques pour chaque article
+        const colors = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#9966FF', '#4BC0C0', '#FF9F40', '#66FF66', '#FF6666', '#6666FF', '#CCFF66'
+        ];
+
+        // Fonction pour créer un graphique
+        function createChart(ctx, label, data, backgroundColors, borderColor, title) {
+            return new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColor,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: title
+                        }
+                    }
+                }
+            });
+        }
+
+        // Création des graphiques avec des couleurs spécifiques
+        createChart(
+            document.getElementById('vuesGraph').getContext('2d'),
+            'Vues',
+            vuesData,
+            colors.slice(0, labels.length),
+            'white',
+            "Statistiques des Vues."
+        );
+
+        createChart(
+            document.getElementById('likesGraph').getContext('2d'),
+            'Likes',
+            likesData,
+            colors.slice(0, labels.length),
+            'white',
+            "Statistiques des Likes."
+        );
+
+        createChart(
+            document.getElementById('commentsGraph').getContext('2d'),
+            'Commentaires',
+            commentsData,
+            colors.slice(0, labels.length),
+            'white',
+            "Statistiques des commentaires."
+        );
+    </script>
 
 
     <script>

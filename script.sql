@@ -162,5 +162,22 @@ GROUP BY
 
 
 
-
+-- pour les statistiques
  
+SELECT 
+    art.ID_article,
+    art.Titre AS titre_article,
+    SUM(CASE WHEN lv.type = 'vue' THEN lv.nbr_L_V ELSE 0 END) AS total_vues,
+    SUM(CASE WHEN lv.type = 'like' THEN lv.nbr_L_V ELSE 0 END) AS total_likes,
+    COUNT(DISTINCT c.ID_Comment) AS total_commentaires
+FROM 
+    Articles art
+LEFT JOIN 
+    Commentaires c ON art.ID_article = c.id_article
+LEFT JOIN 
+    likes_vues lv ON art.ID_article = lv.ID_article
+WHERE 
+    art.ID_auteur = 3
+GROUP BY 
+    art.ID_article
+;

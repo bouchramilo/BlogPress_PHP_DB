@@ -278,7 +278,7 @@ if (isset($_POST['delete_comment'])) {
     </div>
 
     <main class="h-max w-full flex flex-col justify-center items-center gap-6">
-        <section class="h-56 bg-purple-500 bg-[url('images/bg.jpg')] bg-cover w-full flex justify-center items-center ">
+        <section class="h-44 bg-purple-500 bg-[url('images/bg2.jpg')] bg-cover w-full flex justify-center items-center ">
             <h1 class="lg:text-[60px] max-lg:text-[60px] max-sm:text-[40px] text-center font-bold"><?php echo htmlspecialchars($row_article['Titre']); ?></h1>
         </section>
 
